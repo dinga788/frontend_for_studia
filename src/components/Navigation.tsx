@@ -3,7 +3,7 @@ import React, { JSX } from "react";
 
 export default function Navigation(): JSX.Element {
   const navItems = [
-    { id: 1, text: "О нас", href: "#" },
+    { id: 1, text: "О нас", href: "#team" },
     { id: 2, text: "Портфолио", href: "#portfolio" },
     { id: 3, text: "Услуги", href: "#services" },
   ];
@@ -15,9 +15,20 @@ export default function Navigation(): JSX.Element {
     });
   };
 
+  const handleNavClick = (e: React.MouseEvent, href: string) => {
+    e.preventDefault();
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+  };
+
   return (
     <header className="w-full h-20">
-      <nav className="fixed w-full h-20 top-0 left-0 bg-[#1b221b] z-10">
+      <nav className="fixed w-full h-20 top-0 left-0 bg-[#1b221b] z-50">
         <div className="w-full h-[60px] mx-auto my-2.5 px-[100px] flex justify-between items-center">
           
           {/*Логотип и название*/}
@@ -37,6 +48,7 @@ export default function Navigation(): JSX.Element {
                 <li key={item.id}>
                   <a
                     href={item.href}
+                    onClick={(e) => handleNavClick(e, item.href)}
                     className="font-['Istok_Web-Regular',Helvetica] font-normal text-[#dca844] text-xl tracking-[0] leading-normal whitespace-nowrap hover:text-yellow-300 transition-colors"
                   >
                     {item.text}
