@@ -1,4 +1,5 @@
 import React, { JSX, useState } from 'react';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import Button from '@/components/ui/button';
 import Card from '@/components/ui/card';
 import Carousel from '@/components/ui/carousel';
@@ -134,7 +135,7 @@ export default function Box(): JSX.Element {
   };
 
   return (
-    <div className="w-full h-screen bg-[#1b221b] overflow-hidden ">
+    <div className="w-full h-screen bg-[#1b221b] overflow-hidden" id="portfolio">
       <div className="relative w-full h-full flex flex-col items-center">
         {/* Заголовок */}
         <header className="mt-[50px] text-center">
@@ -213,11 +214,9 @@ export default function Box(): JSX.Element {
                         <p className="text-xl text-[#dca844] font-['Istok_Web-Regular',Helvetica] leading-normal">
                           {positions.main.description}
                         </p>
-                        <Button className="mt-6 h-[60px] w-[299px] rounded-md border-[5px] border-[#a6c63c] bg-transparent">
-                          <span className="text-[25px] text-[#a6c63c] font-['Istok_Web-Regular',Helvetica] [-webkit-text-stroke:1px_#a6c63c]">
-                            Обсудить проект
-                          </span>
-                        </Button>
+                        <AnimatedButton className="mt-[10px]">
+                          Обсудить проект
+                        </AnimatedButton>
                       </CardContent>
                     </Card>
                   </div>
