@@ -1,4 +1,4 @@
-import React, { JSX } from "react";
+/*import React, { JSX } from "react";
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 
 export const Komanda = (): JSX.Element => {
@@ -189,6 +189,98 @@ export const Komanda = (): JSX.Element => {
             Наша команда
           </div>
         </div>
+      </div>
+    </div>
+  );
+};*/
+
+{/* адаптивная вёрстка */}
+import React, { JSX } from "react";
+import { PrimaryButton } from '@/components/ui/PrimaryButton';
+
+export const Komanda = (): JSX.Element => {
+  const teamMembers = [
+    {
+      name: "Иван Петров",
+      position: "Арт-директор/концепт-художник",
+      experience: "Более 10 лет в индустрии 3D-графики.",
+      role: "Иван отвечает за общее художественное направление студии.",
+      image: "/иван.png",
+      bgColor: "bg-[#181b17]"
+    },
+    {
+      name: "Алексей Смирнов",
+      position: "Лайтинг/рендер-специалист",
+      experience: "5 лет в 3D-освещении и рендеринге.",
+      role: "Алексей отвечает за настройку освещения и рендеринг финальных изображений.",
+      image: "/алексей.png",
+      bgColor: "bg-[#13121280]"
+    },
+    {
+      name: "Мария Иванова",
+      position: "Ведущий 3D-художник",
+      experience: "7-летний опыт в 3D-рендеринге и текстурировании.",
+      role: "Мария создает высокодетализированные 3D-модели и текстуры.",
+      image: "/мария.png",
+      bgColor: "bg-[#181b17]"
+    },
+    {
+      name: "Дмитрий Кузнецов",
+      position: "Менеджер проектов",
+      experience: "3 года опыта в управлении проектами в сфере 3D-визуализации.",
+      role: "Дмитрий координирует работу, следит за сроками выполнения проектов.",
+      image: "/дмитрий.png",
+      bgColor: "bg-[#181b17]"
+    }
+  ];
+
+  return (
+    <div className="relative w-full min-h-screen bg-[#1b221b] flex items-center justify-center py-[5vh]">
+      <div className="w-full max-w-[1920px] mx-auto px-[5%]">
+        <h2 className="mb-[4vh] [-webkit-text-stroke:1px_#dca844] [font-family:'Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[3vh] md:text-[3.5vh] lg:text-[4vh] xl:text-[4.5vh] 2xl:text-[48px] whitespace-nowrap text-center">
+          Наша команда
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-[2vh] md:gap-[2.5vh]">
+          {teamMembers.map((member, index) => (
+            <div 
+              key={index}
+              className={`${member.bgColor} rounded-md overflow-hidden flex flex-col h-full min-h-[60vh] md:min-h-[65vh]`}
+            >
+              <div className="w-full aspect-[416/415] overflow-hidden flex-none">
+                <img
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                  alt={member.name}
+                  src={member.image}
+                />
+              </div>
+              
+              <div className="p-[2vh] flex flex-col flex-grow">
+                <h3 className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[2vh] md:text-[2.2vh] lg:text-[2.5vh] 2xl:text-[24px] mb-[1.5vh] leading-tight">
+                  {member.position} — {member.name}
+                </h3>
+                
+                <div className="space-y-[1.5vh] flex-grow">
+                  <p className="[font-family:'Istok_Web-Bold',Helvetica] font-normal text-[#dca844] text-[1.8vh] md:text-[2vh] 2xl:text-[20px]">
+                    <span className="font-bold">Опыт:</span> {member.experience}
+                  </p>
+                  
+                  <p className="[font-family:'Istok_Web-Bold',Helvetica] font-normal text-[#dca844] text-[1.8vh] md:text-[2vh] 2xl:text-[20px]">
+                    <span className="font-bold">Чем занимается:</span> {member.role}
+                  </p>
+                </div>
+                
+                <div className="mt-[2vh] pb-[1vh] flex justify-center">
+                  <PrimaryButton className="w-full max-w-[90%] text-[2vh] md:text-[2.2vh] 2xl:text-[24px] py-[1.5vh] min-h-[5vh] hover:bg-opacity-90 transition-all flex items-center justify-center">
+                    Портфолио
+                  </PrimaryButton>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="h-[5vh]"></div>
       </div>
     </div>
   );

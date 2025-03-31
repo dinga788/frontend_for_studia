@@ -2,7 +2,7 @@ import React, { JSX } from "react";
 
 export const HowWork = (): JSX.Element => {
   return (
-    <div className="relative w-full min-h-screen bg-[#1b221b]">
+    <div className="relative w-full min-h-screen bg-[#1b221b] overflow-hidden">
       <div className="relative w-full min-h-screen bg-[#1b221b]">
         <div className="relative w-full h-full">
           <div className="relative w-full h-full bg-[#1b221b]">
@@ -10,57 +10,265 @@ export const HowWork = (): JSX.Element => {
               Как начать работать?
             </div>
 
-            <img
-              className="absolute w-[101px] h-[780px] top-[138px] left-[911px]"
-              alt="Group"
-              src={"/12345.svg"}
-            />
+            {/* Контейнер с изображениями и вертикальной линией */}
+            <div className="absolute top-[138px] left-[911px] flex flex-col items-center">
+              {/* Вертикальная линия */}
+              <div className="absolute h-[780px] w-[4px] bg-[#dca844]"></div>
+              
+              {/* Изображения с анимацией */}
+              <div className="flex flex-col gap-[70px] relative z-10">
+                {/* Шаг 1 */}
+                <div className="relative group">
+                  <div className="w-[101px] h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20">
+                    <img 
+                      className="w-full h-full object-contain" 
+                      alt="Step 1" 
+                      src="/1.svg" 
+                    />
+                  </div>
+                  <div className="absolute left-[151px] top-0 w-[374px] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-10">
+                    <div className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[25px] whitespace-nowrap text-[#dca844]">
+                      Регистрация или Авторизация
+                    </div>
+                    <p className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-xl text-[#dca844] mt-2">
+                      Вы заходите на сайт и регистрируетесь либо авторизуетесь.
+                    </p>
+                  </div>
+                </div>
 
-            <div className="w-[374px] top-[156px] left-[1060px] [font-family:'Istok_Web-Bold',Helvetica] font-bold text-[25px] whitespace-nowrap absolute text-[#dca844] tracking-[0] leading-[normal]">
-              Регистрация или Авторизация
+                {/* Шаг 2 - исправленный отступ */}
+                <div className="relative group">
+                  <div className="w-[101px] h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20">
+                    <img 
+                      className="w-full h-full object-contain" 
+                      alt="Step 2" 
+                      src="/2.svg" 
+                    />
+                  </div>
+                  <div className="absolute right-[80px] top-0 w-[374px] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-10">
+                    <div className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[25px] whitespace-nowrap text-[#dca844]">
+                      Выбор Услуги
+                    </div>
+                    <p className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-xl text-[#dca844] mt-2">
+                      Переходите в каталог услуг и выбираете нужную услугу.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Шаг 3 */}
+                <div className="relative group">
+                  <div className="w-[101px] h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20">
+                    <img 
+                      className="w-full h-full object-contain" 
+                      alt="Step 3" 
+                      src="/3.svg" 
+                    />
+                  </div>
+                  <div className="absolute left-[151px] top-0 w-[374px] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-10">
+                    <div className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[25px] whitespace-nowrap text-[#dca844]">
+                      Оформление Заказа
+                    </div>
+                    <p className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-xl text-[#dca844] mt-2">
+                      Нажимаете на кнопку "Оформить заказ" и заполняете контактную информацию
+                    </p>
+                  </div>
+                </div>
+
+                {/* Шаг 4 */}
+                <div className="relative group">
+                  <div className="w-[101px] h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20">
+                    <img 
+                      className="w-full h-full object-contain" 
+                      alt="Step 4" 
+                      src="/4.svg" 
+                    />
+                  </div>
+                  <div className="absolute right-[151px] top-0 w-[374px] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-10">
+                    <div className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[25px] whitespace-nowrap text-[#dca844]">
+                      Обсуждение Деталей
+                    </div>
+                    <p className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-xl text-[#dca844] mt-2">
+                      Получаете уведомление на почту или звонок от менеджера для уточнения деталей заказа
+                    </p>
+                  </div>
+                </div>
+
+                {/* Шаг 5 */}
+                <div className="relative group">
+                  <div className="w-[101px] h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20">
+                    <img 
+                      className="w-full h-full object-contain" 
+                      alt="Step 5" 
+                      src="/5.svg" 
+                    />
+                  </div>
+                  <div className="absolute left-[151px] top-0 w-[473px] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-10">
+                    <div className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[25px] whitespace-nowrap text-[#dca844]">
+                      Выполнение и Оплата
+                    </div>
+                    <p className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-xl text-[#dca844] mt-2">
+                      Наша команда начинает работу над проектом, завершает его и отправляет вам результат. После утверждения вы оплачиваете услугу.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-
-            <p className="w-[374px] top-[200px] left-[1060px] [font-family:'Istok_Web-Regular',Helvetica] font-normal text-xl absolute text-[#dca844] tracking-[0] leading-[normal]">
-              Вы заходите на сайт и регистрируетесь либо авторизуетесь.
-            </p>
-
-            <div className="w-[374px] top-[496px] left-[1061px] [font-family:'Istok_Web-Bold',Helvetica] font-bold text-[25px] whitespace-nowrap absolute text-[#dca844] tracking-[0] leading-[normal]">
-              Оформление Заказа
-            </div>
-
-            <p className="w-[386px] top-[540px] left-[1061px] [font-family:'Istok_Web-Regular',Helvetica] font-normal text-xl absolute text-[#dca844] tracking-[0] leading-[normal]">
-              Нажимаете на кнопку &#34;Оформить заказ&#34; и заполняете
-              контактную информацию
-            </p>
-
-            <div className="w-[374px] top-[836px] left-[1060px] [font-family:'Istok_Web-Bold',Helvetica] font-bold text-[25px] whitespace-nowrap absolute text-[#dca844] tracking-[0] leading-[normal]">
-              Выполнение и Оплата
-            </div>
-
-            <p className="w-[473px] top-[880px] left-[1060px] [font-family:'Istok_Web-Regular',Helvetica] font-normal text-xl absolute text-[#dca844] tracking-[0] leading-[normal]">
-              Наша команда начинает работу над проектом, завершает его и
-              отправляет вам результат. После утверждения вы оплачиваете услугу.
-            </p>
-
-            <div className="w-[374px] top-[326px] left-[487px] [font-family:'Istok_Web-Bold',Helvetica] font-bold text-[25px] whitespace-nowrap absolute text-[#dca844] tracking-[0] leading-[normal]">
-              Выбор Услуги
-            </div>
-
-            <p className="w-[385px] top-[370px] left-[487px] [font-family:'Istok_Web-Regular',Helvetica] font-normal text-xl absolute text-[#dca844] tracking-[0] leading-[normal]">
-              Переходите в каталог услуг и выбираете нужную услугу.
-            </p>
-
-            <div className="w-[374px] top-[666px] left-[487px] [font-family:'Istok_Web-Bold',Helvetica] font-bold text-[25px] whitespace-nowrap absolute text-[#dca844] tracking-[0] leading-[normal]">
-              Обсуждение Деталей
-            </div>
-
-            <p className="w-[385px] top-[710px] left-[487px] [font-family:'Istok_Web-Regular',Helvetica] font-normal text-xl absolute text-[#dca844] tracking-[0] leading-[normal]">
-              Получаете уведомление на почту или звонок от менеджера для
-              уточнения деталей заказа
-            </p>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
+
+/*import React, { JSX } from "react";
+
+export const HowWork = (): JSX.Element => {
+  return (
+    <div className="relative w-full min-h-screen bg-[#1b221b] overflow-hidden">
+      <div className="relative w-full min-h-screen bg-[#1b221b] pl-4 sm:pl-6 md:pl-8 lg:pl-0">
+        <div className="w-[90%] max-w-[430px] top-[60px] left-0 xl:left-[749px] [-webkit-text-stroke:1px_#dca844] [font-family:'Istok_Web-Bold',Helvetica] font-bold text-[28px] sm:text-[32px] md:text-[36px] lg:text-[40px] absolute text-[#dca844] tracking-[0] leading-[normal]">
+          Как начать работать?
+        </div>
+
+        <div className="absolute top-[180px] left-4 sm:left-8 md:left-12 lg:left-16 xl:left-[911px]">
+          <div className="relative flex">
+            <div className="absolute left-1/2 top-[40px] h-[calc(100%-80px)] w-[4px] bg-[#dca844] transform -translate-x-1/2"></div>
+            
+            <div className="flex flex-col gap-[50px] sm:gap-[60px] md:gap-[70px] relative z-10 w-full">
+              <div className="relative group flex justify-center">
+                <div className="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] md:w-[101px] md:h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20 flex-shrink-0">
+                  <img 
+                    className="w-full h-full object-contain" 
+                    alt="Step 1" 
+                    src="/1.svg" 
+                  />
+                </div>
+                <div className="absolute left-full ml-4 sm:ml-6 top-0 w-[250px] sm:w-[300px] md:w-[350px] lg:w-[374px] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-5 xl:block hidden">
+                  <div className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[18px] sm:text-[20px] md:text-[22px] lg:text-[25px] text-[#dca844]">
+                    Регистрация или Авторизация
+                  </div>
+                  <p className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-[14px] sm:text-[16px] md:text-[18px] lg:text-xl text-[#dca844] mt-1 sm:mt-2 break-words">
+                    Вы заходите на сайт и регистрируетесь либо авторизуетесь.
+                  </p>
+                </div>
+                <div className="absolute left-full ml-4 sm:ml-6 top-0 w-[calc(100vw-180px)] sm:w-[calc(100vw-220px)] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-0 xl:hidden">
+                  <div className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[16px] sm:text-[18px] text-[#dca844]">
+                    Регистрация или Авторизация
+                  </div>
+                  <p className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-[13px] sm:text-[14px] text-[#dca844] mt-1 break-words">
+                    Вы заходите на сайт и регистрируетесь либо авторизуетесь.
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative group flex justify-center">
+                <div className="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] md:w-[101px] md:h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20 flex-shrink-0">
+                  <img 
+                    className="w-full h-full object-contain" 
+                    alt="Step 2" 
+                    src="/2.svg" 
+                  />
+                </div>
+                <div className="absolute right-full mr-4 sm:mr-6 top-0 w-[250px] sm:w-[300px] md:w-[350px] lg:w-[374px] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-5 xl:block hidden">
+                  <div className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[18px] sm:text-[20px] md:text-[22px] lg:text-[25px] text-[#dca844]">
+                    Выбор Услуги
+                  </div>
+                  <p className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-[14px] sm:text-[16px] md:text-[18px] lg:text-xl text-[#dca844] mt-1 sm:mt-2 break-words">
+                    Переходите в каталог услуг и выбираете нужную услугу.
+                  </p>
+                </div>
+                <div className="absolute left-full ml-4 sm:ml-6 top-0 w-[calc(100vw-180px)] sm:w-[calc(100vw-220px)] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-0 xl:hidden">
+                  <div className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[16px] sm:text-[18px] text-[#dca844]">
+                    Выбор Услуги
+                  </div>
+                  <p className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-[13px] sm:text-[14px] text-[#dca844] mt-1 break-words">
+                    Переходите в каталог услуг и выбираете нужную услугу.
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative group flex justify-center">
+                <div className="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] md:w-[101px] md:h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20 flex-shrink-0">
+                  <img 
+                    className="w-full h-full object-contain" 
+                    alt="Step 3" 
+                    src="/3.svg" 
+                  />
+                </div>
+                <div className="absolute left-full ml-4 sm:ml-6 top-0 w-[250px] sm:w-[300px] md:w-[350px] lg:w-[374px] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-5 xl:block hidden">
+                  <div className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[18px] sm:text-[20px] md:text-[22px] lg:text-[25px] text-[#dca844]">
+                    Оформление Заказа
+                  </div>
+                  <p className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-[14px] sm:text-[16px] md:text-[18px] lg:text-xl text-[#dca844] mt-1 sm:mt-2 break-words">
+                    Нажимаете на кнопку "Оформить заказ" и заполняете контактную информацию
+                  </p>
+                </div>
+                <div className="absolute left-full ml-4 sm:ml-6 top-0 w-[calc(100vw-180px)] sm:w-[calc(100vw-220px)] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-0 xl:hidden">
+                  <div className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[16px] sm:text-[18px] text-[#dca844]">
+                    Оформление Заказа
+                  </div>
+                  <p className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-[13px] sm:text-[14px] text-[#dca844] mt-1 break-words">
+                    Нажимаете на кнопку "Оформить заказ" и заполняете контактную информацию
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative group flex justify-center">
+                <div className="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] md:w-[101px] md:h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20 flex-shrink-0">
+                  <img 
+                    className="w-full h-full object-contain" 
+                    alt="Step 4" 
+                    src="/4.svg" 
+                  />
+                </div>
+                <div className="absolute right-full mr-4 sm:mr-6 top-0 w-[250px] sm:w-[300px] md:w-[350px] lg:w-[374px] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-5 xl:block hidden">
+                  <div className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[18px] sm:text-[20px] md:text-[22px] lg:text-[25px] text-[#dca844]">
+                    Обсуждение Деталей
+                  </div>
+                  <p className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-[14px] sm:text-[16px] md:text-[18px] lg:text-xl text-[#dca844] mt-1 sm:mt-2 break-words">
+                    Получаете уведомление на почту или звонок от менеджера для уточнения деталей заказа
+                  </p>
+                </div>
+                <div className="absolute left-full ml-4 sm:ml-6 top-0 w-[calc(100vw-180px)] sm:w-[calc(100vw-220px)] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-0 xl:hidden">
+                  <div className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[16px] sm:text-[18px] text-[#dca844]">
+                    Обсуждение Деталей
+                  </div>
+                  <p className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-[13px] sm:text-[14px] text-[#dca844] mt-1 break-words">
+                    Получаете уведомление на почту или звонок от менеджера для уточнения деталей заказа
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative group flex justify-center">
+                <div className="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] md:w-[101px] md:h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20 flex-shrink-0">
+                  <img 
+                    className="w-full h-full object-contain" 
+                    alt="Step 5" 
+                    src="/5.svg" 
+                  />
+                </div>
+                <div className="absolute left-full ml-4 sm:ml-6 top-0 w-[280px] sm:w-[350px] md:w-[400px] lg:w-[473px] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-5 xl:block hidden">
+                  <div className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[18px] sm:text-[20px] md:text-[22px] lg:text-[25px] text-[#dca844]">
+                    Выполнение и Оплата
+                  </div>
+                  <p className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-[14px] sm:text-[16px] md:text-[18px] lg:text-xl text-[#dca844] mt-1 sm:mt-2 break-words">
+                    Наша команда начинает работу над проектом, завершает его и отправляет вам результат. После утверждения вы оплачиваете услугу.
+                  </p>
+                </div>
+                <div className="absolute left-full ml-4 sm:ml-6 top-0 w-[calc(100vw-180px)] sm:w-[calc(100vw-220px)] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-0 xl:hidden">
+                  <div className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[16px] sm:text-[18px] text-[#dca844]">
+                    Выполнение и Оплата
+                  </div>
+                  <p className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-[13px] sm:text-[14px] text-[#dca844] mt-1 break-words">
+                    Наша команда начинает работу над проектом, завершает его и отправляет вам результат. После утверждения вы оплачиваете услугу.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};*/
