@@ -65,18 +65,43 @@ export default function Navigation(): JSX.Element {
 }*/
 
 import { User, ChevronDown, ChevronUp, X } from "lucide-react";
-import React, { JSX, useState } from "react";
+import React, { JSX, useState, useEffect } from "react";
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { authAPI } from '@/services/api.service';
+
+type FormData = {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  emailOrPhone: string;
+  password: string;
+  confirmPassword: string;
+};
+
+type UserData = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number: string;
+};
 
 export default function Navigation(): JSX.Element {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [formData, setFormData] = useState({
+  const [showRegModal, setShowRegModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
+    phone: '',
+    email: '',
     emailOrPhone: '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   });
   
   const navItems = [
@@ -84,6 +109,24 @@ export default function Navigation(): JSX.Element {
     { id: 2, text: "Портфолио", href: "#portfolio" },
     { id: 3, text: "Услуги", href: "#services" },
   ];
+
+  // Проверка авторизации при загрузке
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const response = await authAPI.getProfile();
+          setCurrentUser(response.data);
+        } catch (error) {
+          localStorage.removeItem('token');
+        }
+      }
+      setLoading(false);
+    };
+    
+    checkAuth();
+  }, []);
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -93,6 +136,7 @@ export default function Navigation(): JSX.Element {
     setIsDropdownOpen(false);
     setIsProfileOpen(false);
     setShowAuthModal(false);
+    setShowRegModal(false);
   };
 
   const handleNavClick = (e: React.MouseEvent, href: string) => {
@@ -107,6 +151,7 @@ export default function Navigation(): JSX.Element {
     setIsDropdownOpen(false);
     setIsProfileOpen(false);
     setShowAuthModal(false);
+    setShowRegModal(false);
   };
 
   const toggleProfile = () => {
@@ -116,11 +161,22 @@ export default function Navigation(): JSX.Element {
 
   const handleAuthClick = () => {
     setShowAuthModal(true);
+    setShowRegModal(false);
+    setIsProfileOpen(false);
+  };
+
+  const handleRegClick = () => {
+    setShowRegModal(true);
+    setShowAuthModal(false);
     setIsProfileOpen(false);
   };
 
   const closeAuthModal = () => {
     setShowAuthModal(false);
+  };
+
+  const closeRegModal = () => {
+    setShowRegModal(false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,11 +187,68 @@ export default function Navigation(): JSX.Element {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Форма отправлена:', formData);
-    closeAuthModal();
+    
+    try {
+      // Определяем, что ввел пользователь - email или телефон
+      const isEmail = formData.emailOrPhone.includes('@');
+      const login = isEmail ? formData.emailOrPhone : formData.emailOrPhone.replace(/\D/g, '');
+      
+      const response = await authAPI.login(login, formData.password);
+      
+      console.log('Успешная авторизация:', response.data);
+      localStorage.setItem('token', response.data.token);
+      setCurrentUser(response.data.user);
+      closeAuthModal();
+      
+    } catch (error: any) {
+      console.error('Ошибка авторизации:', error.response?.data?.message);
+      alert(error.response?.data?.message || 'Неверный логин или пароль');
+    }
   };
+
+  const handleRegSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (formData.password !== formData.confirmPassword) {
+      alert('Пароли не совпадают');
+      return;
+    }
+
+    try {
+      const response = await authAPI.register({
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone_number: formData.phone,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword
+      });
+      
+      console.log('Успешная регистрация:', response.data);
+      localStorage.setItem('token', response.data.token);
+      setCurrentUser(response.data.user);
+      closeRegModal();
+      
+    } catch (error: any) {
+      console.error('Полный ответ ошибки:', error.response);
+      const errorMessage = error.response?.data?.message 
+        || error.response?.data?.error
+        || 'Ошибка регистрации';
+      alert(errorMessage);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setCurrentUser(null);
+    setIsProfileOpen(false);
+  };
+
+  if (loading) {
+    return <div>Загрузка...</div>;
+  }
 
   return (
     <>
@@ -175,13 +288,26 @@ export default function Navigation(): JSX.Element {
                 ))}
               </ul>
 
-              <button 
-                onClick={toggleProfile}
-                className="ml-[48px] text-[#dca844] hover:text-yellow-300 transition-colors"
-                aria-label="Профиль"
-              >
-                <User className="w-10 h-10" />
-              </button>
+              {currentUser ? (
+                <div className="flex items-center ml-[48px]">
+                  <span className="text-[#dca844] mr-4">
+                    {currentUser.first_name} {currentUser.last_name}
+                  </span>
+                  <button 
+                    onClick={handleLogout}
+                    className="text-[#dca844] hover:text-yellow-300 transition-colors"
+                  >
+                    Выйти
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={toggleProfile}
+                  className="ml-[48px] text-[#dca844] hover:text-yellow-300 transition-colors"
+                >
+                  <User className="w-10 h-10" />
+                </button>
+              )}
             </div>
 
             <div className="flex lg:hidden items-center gap-6">
@@ -217,24 +343,33 @@ export default function Navigation(): JSX.Element {
                 )}
               </div>
 
-              <button 
-                onClick={toggleProfile}
-                className="text-[#dca844] hover:text-yellow-300 transition-colors"
-                aria-label="Профиль"
-              >
-                <User className="w-8 h-8" />
-              </button>
+              {currentUser ? (
+                <button 
+                  onClick={handleLogout}
+                  className="text-[#dca844] hover:text-yellow-300 transition-colors"
+                >
+                  Выйти
+                </button>
+              ) : (
+                <button 
+                  onClick={toggleProfile}
+                  className="text-[#dca844] hover:text-yellow-300 transition-colors"
+                >
+                  <User className="w-8 h-8" />
+                </button>
+              )}
             </div>
           </div>
         </nav>
       </header>
 
-      {(isProfileOpen || showAuthModal) && (
+      {(isProfileOpen || showAuthModal || showRegModal) && (
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
           onClick={() => {
             setIsProfileOpen(false);
             setShowAuthModal(false);
+            setShowRegModal(false);
           }}
         />
       )}
@@ -249,38 +384,88 @@ export default function Navigation(): JSX.Element {
             <X className="w-8 h-8" />
           </button>
           
-          <div className="flex items-center mb-12 cursor-pointer" onClick={handleAuthClick}>
-            <img 
-              src='/user-tick.svg' 
-              alt="авторизация" 
-              className="w-10 h-10 mr-8" 
-            />
-            <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
-              авторизироватся
-            </span>
-          </div>
-          
-          <div className="flex items-center mb-12">
-            <img 
-              src='/user-add.svg'
-              alt="Регестрация" 
-              className="w-10 h-10 mr-8" 
-            />
-            <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
-              Связаться
-            </span>
-          </div>
-          
-          <div className="flex items-center">
-            <img 
-              src='/message-notif.svg' 
-              alt="Выйти" 
-              className="w-10 h-10 mr-8" 
-            />
-            <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
-              Выйти
-            </span>
-          </div>
+          {currentUser ? (
+            <>
+              <div className="flex items-center mb-12">
+                <img 
+                  src='/user-tick.svg' 
+                  alt="Профиль" 
+                  className="w-10 h-10 mr-8" 
+                />
+                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                  {currentUser.first_name} {currentUser.last_name}
+                </span>
+              </div>
+              <div className="flex items-center mb-12">
+                <img 
+                  src='/message-notif.svg' 
+                  alt="Email" 
+                  className="w-10 h-10 mr-8" 
+                />
+                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                  {currentUser.email}
+                </span>
+              </div>
+              <div className="flex items-center mb-12">
+                <img 
+                  src='/call.svg' 
+                  alt="Телефон" 
+                  className="w-10 h-10 mr-8" 
+                />
+                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                  {currentUser.phone_number}
+                </span>
+              </div>
+              <button 
+                onClick={handleLogout}
+                className="flex items-center text-[#dca844] hover:text-yellow-300"
+              >
+                <img 
+                  src='/logout.svg' 
+                  alt="Выйти" 
+                  className="w-10 h-10 mr-8" 
+                />
+                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[25px]">
+                  Выйти
+                </span>
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center mb-12 cursor-pointer" onClick={handleAuthClick}>
+                <img 
+                  src='/user-tick.svg' 
+                  alt="авторизация" 
+                  className="w-10 h-10 mr-8" 
+                />
+                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                  авторизироватся
+                </span>
+              </div>
+              
+              <div className="flex items-center mb-12 cursor-pointer" onClick={handleRegClick}>
+                <img 
+                  src='/user-add.svg'
+                  alt="Регестрация" 
+                  className="w-10 h-10 mr-8" 
+                />
+                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                  Регистрация
+                </span>
+              </div>
+              
+              <div className="flex items-center">
+                <img 
+                  src='/message-notif.svg' 
+                  alt="Выйти" 
+                  className="w-10 h-10 mr-8" 
+                />
+                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                  Связаться
+                </span>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -290,14 +475,77 @@ export default function Navigation(): JSX.Element {
             <img
               className="absolute w-[327px] h-[51px] top-[100px] left-[155px]"
               alt="Union"
-              src="/union.svg"
+              src="/полоски_под_заголовком.svg"
             />
 
             <div className="w-[261px] top-[45px] left-[187px] [-webkit-text-stroke:1px_#dca844] text-[#dca844] text-[40px] text-center absolute [font-family:'Istok_Web-Regular',Helvetica] font-normal tracking-[0] leading-[normal]">
               Авторизация
             </div>
 
-            <form onSubmit={handleSubmit} className="w-full h-full">
+            <form onSubmit={handleAuthSubmit} className="w-full h-full">
+              <div className="absolute w-[558px] h-[42px] top-[234px] left-10 rounded-md">
+                <input
+                  type="text"
+                  name="emailOrPhone"
+                  value={formData.emailOrPhone}
+                  onChange={handleInputChange}
+                  placeholder="Телефон или E-mail"
+                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
+                  required
+                />
+                <div className="absolute w-[558px] h-[42px] top-0 left-0 rounded-md border-[5px] border-solid border-[#dca844] pointer-events-none" />
+              </div>
+
+              <div className="absolute w-[558px] h-[42px] top-[301px] left-[39px] rounded-md">
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="Пароль"
+                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
+                  required
+                />
+                <div className="absolute w-[558px] h-[42px] top-0 left-0 rounded-md border-[5px] border-solid border-[#dca844] pointer-events-none" />
+              </div>
+
+              <div className="absolute w-[300px] h-[60px] top-[700px] left-[168px] rounded-md">
+                <PrimaryButton type="submit">
+                    Авторизироваться
+                </PrimaryButton>
+              </div>
+
+              <button 
+                type="button"
+                onClick={closeAuthModal}
+                className="absolute w-10 h-10 top-5 left-5 text-[#dca844] hover:text-yellow-300"
+                aria-label="Закрыть"
+              >
+                <img
+                  src="/send.svg"
+                  alt="Закрыть"
+                  className="w-full h-full"
+                />
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showRegModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="relative w-[637px] h-[810px] bg-[#1b221b] rounded-md">
+            <img
+              className="absolute w-[327px] h-[51px] top-[100px] left-[155px]"
+              alt="Union"
+              src="/полоски_под_заголовком.svg"
+            />
+
+            <div className="w-[261px] top-[45px] left-[187px] [-webkit-text-stroke:1px_#dca844] text-[#dca844] text-[40px] text-center absolute [font-family:'Istok_Web-Regular',Helvetica] font-normal tracking-[0] leading-[normal]">
+              Регистрация
+            </div>
+
+            <form onSubmit={handleRegSubmit} className="w-full h-full">
               <div className="absolute w-[558px] h-[42px] top-[234px] left-10 rounded-md">
                 <input
                   type="text"
@@ -305,7 +553,7 @@ export default function Navigation(): JSX.Element {
                   value={formData.firstName}
                   onChange={handleInputChange}
                   placeholder="Ваше имя"
-                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#fcbf49b2] text-xl focus:outline-none"
+                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
                   required
                 />
                 <div className="absolute w-[558px] h-[42px] top-0 left-0 rounded-md border-[5px] border-solid border-[#dca844] pointer-events-none" />
@@ -318,7 +566,7 @@ export default function Navigation(): JSX.Element {
                   value={formData.lastName}
                   onChange={handleInputChange}
                   placeholder="Ваша фамилия"
-                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#fcbf49b2] text-xl focus:outline-none"
+                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
                   required
                 />
                 <div className="absolute w-[558px] h-[42px] top-0 left-0 rounded-md border-[5px] border-solid border-[#dca844] pointer-events-none" />
@@ -326,41 +574,65 @@ export default function Navigation(): JSX.Element {
 
               <div className="absolute w-[558px] h-[42px] top-[368px] left-[39px] rounded-md">
                 <input
-                  type="text"
-                  name="emailOrPhone"
-                  value={formData.emailOrPhone}
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
                   onChange={handleInputChange}
-                  placeholder="Телефон или E-mail"
-                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#fcbf49b2] text-xl focus:outline-none"
+                  placeholder="Телефон"
+                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
                   required
                 />
                 <div className="absolute w-[558px] h-[42px] top-0 left-0 rounded-md border-[5px] border-solid border-[#dca844] pointer-events-none" />
               </div>
 
-              <div className="absolute w-[558px] h-[42px] top-[480px] left-10 rounded-md">
+              <div className="absolute w-[558px] h-[42px] top-[435px] left-[39px] rounded-md">
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="E-mail"
+                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
+                  required
+                />
+                <div className="absolute w-[558px] h-[42px] top-0 left-0 rounded-md border-[5px] border-solid border-[#dca844] pointer-events-none" />
+              </div>
+
+              <div className="absolute w-[558px] h-[42px] top-[547px] left-10 rounded-md">
                 <input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  placeholder="Пароль"
-                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#fcbf49b2] text-xl focus:outline-none"
+                  placeholder="Придумайте пароль"
+                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
+                  required
+                />
+                <div className="absolute w-[558px] h-[42px] top-0 left-0 rounded-md border-[5px] border-solid border-[#dca844] pointer-events-none" />
+              </div>
+
+              <div className="absolute w-[558px] h-[42px] top-[614px] left-10 rounded-md">
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  placeholder="Повторите пароль"
+                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
                   required
                 />
                 <div className="absolute w-[558px] h-[42px] top-0 left-0 rounded-md border-[5px] border-solid border-[#dca844] pointer-events-none" />
               </div>
 
               <div className="absolute w-[300px] h-[60px] top-[700px] left-[168px] rounded-md">
-                <PrimaryButton className="w-full h-full">
-                  <span className="[-webkit-text-stroke:1px_#a6c63c] text-[#a6c63c] text-[25px] [font-family:'Istok_Web-Regular',Helvetica] font-normal tracking-[0] leading-[normal]">
-                    Авторизироваться
-                  </span>
+                <PrimaryButton type="submit">
+                  Зарегистрироваться
                 </PrimaryButton>
               </div>
 
               <button 
                 type="button"
-                onClick={closeAuthModal}
+                onClick={closeRegModal}
                 className="absolute w-10 h-10 top-5 left-5 text-[#dca844] hover:text-yellow-300"
                 aria-label="Закрыть"
               >

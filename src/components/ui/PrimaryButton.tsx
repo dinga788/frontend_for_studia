@@ -1,11 +1,10 @@
 import React from 'react';
 
-interface PrimaryButtonProps {
+interface PrimaryButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   className?: string;
   width?: string;
   height?: string;
-  onClick?: () => void;
 }
 
 export const PrimaryButton = ({
@@ -13,7 +12,7 @@ export const PrimaryButton = ({
   className = '',
   width = '300px',
   height = '60px',
-  onClick
+  ...props
 }: PrimaryButtonProps) => {
   return (
     <button 
@@ -22,7 +21,7 @@ export const PrimaryButton = ({
                  hover:bg-[#95b235] hover:shadow-[0_0_15px_#95b235]
                  ${className}`}
       style={{ width, height }}
-      onClick={onClick}
+      {...props} // Передаем все стандартные props кнопки
     >
       <span className={`[font-family:'Istok_Web-Regular',Helvetica] font-normal text-[#0b0e0b] text-[25px]
                        transition-colors duration-500 ${className}`}>
