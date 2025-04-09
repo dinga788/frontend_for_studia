@@ -194,11 +194,20 @@ export const Komanda = (): JSX.Element => {
   );
 };*/
 
-{/* адаптивная вёрстка */}
-import React, { JSX } from "react";
+'use client';
+import React, { JSX, useState, useEffect } from "react";
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 
-export const Komanda = (): JSX.Element => {
+export const Komanda = (): JSX.Element | null => {
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return null;
+
   const teamMembers = [
     {
       name: "Иван Петров",

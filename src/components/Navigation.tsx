@@ -1,73 +1,10 @@
-/*import { Menu, User } from "lucide-react";
-import React, { JSX } from "react";
-
-export default function Navigation(): JSX.Element {
-  const navItems = [
-    { id: 1, text: "О нас", href: "#team" },
-    { id: 2, text: "Портфолио", href: "#portfolio" },
-    { id: 3, text: "Услуги", href: "#services" },
-  ];
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-  };
-
-  const handleNavClick = (e: React.MouseEvent, href: string) => {
-    e.preventDefault();
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-    }
-  };
-
-  return (
-    <header className="w-full h-20">
-      <nav className="fixed w-full h-20 top-0 left-0 bg-[#1b221b] z-50">
-        <div className="w-full h-[60px] mx-auto my-2.5 px-[100px] flex justify-between items-center">
-          
-          <button 
-            onClick={scrollToTop}
-            className="flex items-center focus:outline-none"
-            aria-label="Вернуться на главную"
-          >
-            <img src="/Логотип.svg" alt="Polyform Logo" className="w-[52px] h-[60px]" />
-            <img src="/POLYFORM.svg" alt="POLYFORM" className="ml-[23px] w-[204px] h-[29px]" />
-          </button>
-
-          <div className="flex items-center">
-            <ul className="flex items-center space-x-[50px]">
-              {navItems.map((item) => (
-                <li key={item.id}>
-                  <a
-                    href={item.href}
-                    onClick={(e) => handleNavClick(e, item.href)}
-                    className="font-['Istok_Web-Regular',Helvetica] font-normal text-[#dca844] text-xl tracking-[0] leading-normal whitespace-nowrap hover:text-yellow-300 transition-colors"
-                  >
-                    {item.text}
-                  </a>
-                </li>
-              ))}
-            </ul>
-
-            <User className="ml-[48px] w-10 h-10 text-[#dca844]" />
-            <Menu className="ml-[40px] w-10 h-9 text-[#dca844]" />
-          </div>
-        </div>
-      </nav>
-    </header>
-  );
-}*/
-
+'use client';
 import { User, ChevronDown, ChevronUp, X } from "lucide-react";
-import React, { JSX, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { authAPI } from '@/services/api.service';
+import Link from 'next/link';
+import router from "next/router";
 
 type FormData = {
   firstName: string;
@@ -87,13 +24,20 @@ type UserData = {
   phone_number: string;
 };
 
-export default function Navigation(): JSX.Element {
+type Notification = {
+  id: number;
+  message: string;
+  type: 'success' | 'error';
+};
+
+export default function Navigation() {
+  const [isMounted, setIsMounted] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showRegModal, setShowRegModal] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -103,6 +47,24 @@ export default function Navigation(): JSX.Element {
     password: '',
     confirmPassword: ''
   });
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <div className="w-full h-20 bg-[#1b221b]" />;
+  }
+
+  const addNotification = (message: string, type: 'success' | 'error') => {
+    const id = Date.now();
+    setNotifications(prev => [...prev, { id, message, type }]);
+    setTimeout(() => removeNotification(id), 5000);
+  };
+
+  const removeNotification = (id: number) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
   
   const navItems = [
     { id: 1, text: "О нас", href: "#team" },
@@ -110,75 +72,61 @@ export default function Navigation(): JSX.Element {
     { id: 3, text: "Услуги", href: "#services" },
   ];
 
-  // Проверка авторизации при загрузке
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const response = await authAPI.getProfile();
-          setCurrentUser(response.data);
-        } catch (error) {
-          localStorage.removeItem('token');
-        }
-      }
-      setLoading(false);
-    };
-    
-    checkAuth();
-  }, []);
-
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-    setIsDropdownOpen(false);
-    setIsProfileOpen(false);
-    setShowAuthModal(false);
-    setShowRegModal(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    closeAllModals();
   };
 
   const handleNavClick = (e: React.MouseEvent, href: string) => {
     e.preventDefault();
     const element = document.querySelector(href);
     if (element) {
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-    setIsDropdownOpen(false);
-    setIsProfileOpen(false);
-    setShowAuthModal(false);
-    setShowRegModal(false);
+    closeAllModals();
   };
 
   const toggleProfile = () => {
-    setIsProfileOpen(!isProfileOpen);
+    setIsProfileOpen(prev => !prev);
     setIsDropdownOpen(false);
   };
 
-  const handleAuthClick = () => {
-    setShowAuthModal(true);
-    setShowRegModal(false);
+  const closeAllModals = () => {
+    setIsDropdownOpen(false);
     setIsProfileOpen(false);
-  };
-
-  const handleRegClick = () => {
-    setShowRegModal(true);
     setShowAuthModal(false);
-    setIsProfileOpen(false);
+    setShowRegModal(false);
   };
 
   const closeAuthModal = () => {
     setShowAuthModal(false);
   };
-
+  
   const closeRegModal = () => {
     setShowRegModal(false);
   };
-
+  
+  const handleLogout = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+    }
+    setCurrentUser(null);
+    setIsProfileOpen(false);
+    addNotification('Вы вышли из системы', 'success');
+  };
+  
+  const handleAuthClick = () => {
+    setShowAuthModal(true);
+    setShowRegModal(false);
+    setIsProfileOpen(false);
+  };
+  
+  const handleRegClick = () => {
+    setShowRegModal(true);
+    setShowAuthModal(false);
+    setIsProfileOpen(false);
+  };
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -186,36 +134,15 @@ export default function Navigation(): JSX.Element {
       [name]: value
     }));
   };
-
-  const handleAuthSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      // Определяем, что ввел пользователь - email или телефон
-      const isEmail = formData.emailOrPhone.includes('@');
-      const login = isEmail ? formData.emailOrPhone : formData.emailOrPhone.replace(/\D/g, '');
-      
-      const response = await authAPI.login(login, formData.password);
-      
-      console.log('Успешная авторизация:', response.data);
-      localStorage.setItem('token', response.data.token);
-      setCurrentUser(response.data.user);
-      closeAuthModal();
-      
-    } catch (error: any) {
-      console.error('Ошибка авторизации:', error.response?.data?.message);
-      alert(error.response?.data?.message || 'Неверный логин или пароль');
-    }
-  };
-
+  
   const handleRegSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (formData.password !== formData.confirmPassword) {
-      alert('Пароли не совпадают');
+      addNotification('Пароли не совпадают', 'error');
       return;
     }
-
+  
     try {
       const response = await authAPI.register({
         first_name: formData.firstName,
@@ -223,32 +150,38 @@ export default function Navigation(): JSX.Element {
         email: formData.email,
         phone_number: formData.phone,
         password: formData.password,
-        confirmPassword: formData.confirmPassword
+        confirmPassword: formData.confirmPassword,
       });
       
-      console.log('Успешная регистрация:', response.data);
-      localStorage.setItem('token', response.data.token);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', response.data.token);
+      }
       setCurrentUser(response.data.user);
-      closeRegModal();
+      addNotification('Вы успешно зарегистрировались!', 'success');
       
+      closeRegModal();
+      setIsProfileOpen(false);
     } catch (error: any) {
-      console.error('Полный ответ ошибки:', error.response);
-      const errorMessage = error.response?.data?.message 
-        || error.response?.data?.error
-        || 'Ошибка регистрации';
-      alert(errorMessage);
+      const errorMessage = error.response?.data?.message || 'Ошибка регистрации';
+      addNotification(errorMessage, 'error');
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setCurrentUser(null);
-    setIsProfileOpen(false);
+  const handleAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const isEmail = formData.emailOrPhone.includes('@');
+      const login = isEmail ? formData.emailOrPhone : formData.emailOrPhone.replace(/\D/g, '');
+      const response = await authAPI.login(login, formData.password);
+      
+      localStorage.setItem('token', response.data.token);
+      setCurrentUser(response.data.user);
+      addNotification('Вы успешно авторизовались!', 'success');
+      closeAuthModal();
+    } catch (error) {
+      addNotification('Ошибка авторизации', 'error');
+    }
   };
-
-  if (loading) {
-    return <div>Загрузка...</div>;
-  }
 
   return (
     <>
@@ -272,7 +205,7 @@ export default function Navigation(): JSX.Element {
                 className="ml-2 sm:ml-[23px] w-32 sm:w-[204px] h-5 sm:h-[29px]" 
               />
             </button>
-
+  
             <div className="hidden lg:flex items-center">
               <ul className="flex items-center space-x-[50px]">
                 {navItems.map((item) => (
@@ -287,7 +220,7 @@ export default function Navigation(): JSX.Element {
                   </li>
                 ))}
               </ul>
-
+  
               {currentUser ? (
                 <div className="flex items-center ml-[48px]">
                   <span className="text-[#dca844] mr-4">
@@ -309,7 +242,7 @@ export default function Navigation(): JSX.Element {
                 </button>
               )}
             </div>
-
+  
             <div className="flex lg:hidden items-center gap-6">
               <div className="relative">
                 <button 
@@ -323,7 +256,7 @@ export default function Navigation(): JSX.Element {
                     <ChevronDown className="w-8 h-8" />
                   )}
                 </button>
-
+  
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-[#1b221b] border border-[#dca844] rounded-md shadow-lg z-50">
                     <ul className="py-1">
@@ -342,7 +275,7 @@ export default function Navigation(): JSX.Element {
                   </div>
                 )}
               </div>
-
+  
               {currentUser ? (
                 <button 
                   onClick={handleLogout}
@@ -362,7 +295,29 @@ export default function Navigation(): JSX.Element {
           </div>
         </nav>
       </header>
-
+  
+      {/* Уведомления */}
+      <div className="fixed top-4 right-4 z-[60] space-y-2">
+        {notifications.map(notification => (
+          <div 
+            key={notification.id}
+            className={`px-6 py-4 rounded-md shadow-lg flex items-center justify-between ${
+              notification.type === 'success' 
+                ? 'bg-green-500 text-white' 
+                : 'bg-red-500 text-white'
+            }`}
+          >
+            <span>{notification.message}</span>
+            <button 
+              onClick={() => removeNotification(notification.id)}
+              className="ml-4 text-white hover:text-gray-200"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        ))}
+      </div>
+  
       {(isProfileOpen || showAuthModal || showRegModal) && (
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
@@ -373,7 +328,7 @@ export default function Navigation(): JSX.Element {
           }}
         />
       )}
-
+  
       <div className={`fixed top-0 right-0 h-full w-[477px] bg-[#131613] z-50 transition-transform duration-300 ${isProfileOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="p-6">
           <button 
@@ -386,49 +341,44 @@ export default function Navigation(): JSX.Element {
           
           {currentUser ? (
             <>
-              <div className="flex items-center mb-12">
-                <img 
-                  src='/user-tick.svg' 
-                  alt="Профиль" 
-                  className="w-10 h-10 mr-8" 
-                />
-                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
-                  {currentUser.first_name} {currentUser.last_name}
-                </span>
-              </div>
-              <div className="flex items-center mb-12">
-                <img 
-                  src='/message-notif.svg' 
-                  alt="Email" 
-                  className="w-10 h-10 mr-8" 
-                />
-                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
-                  {currentUser.email}
-                </span>
-              </div>
-              <div className="flex items-center mb-12">
-                <img 
-                  src='/call.svg' 
-                  alt="Телефон" 
-                  className="w-10 h-10 mr-8" 
-                />
-                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
-                  {currentUser.phone_number}
-                </span>
-              </div>
-              <button 
-                onClick={handleLogout}
-                className="flex items-center text-[#dca844] hover:text-yellow-300"
+              <div 
+                className="flex items-center mb-12 cursor-pointer"
+                onClick={() => {
+                  router.push('/orders');
+                  setIsProfileOpen(false);
+                }}
               >
                 <img 
-                  src='/logout.svg' 
-                  alt="Выйти" 
-                  className="w-10 h-10 mr-8" 
+                  src='/bag-2.svg'
+                  alt="Мои заказы"
+                  className="w-10 h-10 mr-8"
                 />
-                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[25px]">
+                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                  Мои заказы
+                </span>
+              </div>
+              
+              <div className="flex items-center mb-12 cursor-pointer">
+                <img 
+                  src='/message-notif.svg'
+                  alt="Связаться"
+                  className="w-10 h-10 mr-8"
+                />
+                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                  Связаться
+                </span>
+              </div>
+              
+              <div className="flex items-center cursor-pointer" onClick={handleLogout}>
+                <img 
+                  src='/logout.svg'
+                  alt="Выйти"
+                  className="w-10 h-10 mr-8"
+                />
+                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
                   Выйти
                 </span>
-              </button>
+              </div>
             </>
           ) : (
             <>
@@ -446,7 +396,7 @@ export default function Navigation(): JSX.Element {
               <div className="flex items-center mb-12 cursor-pointer" onClick={handleRegClick}>
                 <img 
                   src='/user-add.svg'
-                  alt="Регестрация" 
+                  alt="Регистрация" 
                   className="w-10 h-10 mr-8" 
                 />
                 <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
@@ -455,20 +405,24 @@ export default function Navigation(): JSX.Element {
               </div>
               
               <div className="flex items-center">
-                <img 
-                  src='/message-notif.svg' 
-                  alt="Выйти" 
-                  className="w-10 h-10 mr-8" 
-                />
-                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
-                  Связаться
-                </span>
+                <Link href="/svasi" passHref>
+                  <button className="flex items-center cursor-pointer">
+                    <img 
+                      src='/message-notif.svg' 
+                      alt="Связаться" 
+                      className="w-10 h-10 mr-8" 
+                    />
+                    <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                      Связаться
+                    </span>
+                  </button>
+                </Link>
               </div>
             </>
           )}
         </div>
       </div>
-
+  
       {showAuthModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="relative w-[637px] h-[810px] bg-[#1b221b] rounded-md">
@@ -477,13 +431,13 @@ export default function Navigation(): JSX.Element {
               alt="Union"
               src="/полоски_под_заголовком.svg"
             />
-
+  
             <div className="w-[261px] top-[45px] left-[187px] [-webkit-text-stroke:1px_#dca844] text-[#dca844] text-[40px] text-center absolute [font-family:'Istok_Web-Regular',Helvetica] font-normal tracking-[0] leading-[normal]">
               Авторизация
             </div>
-
+  
             <form onSubmit={handleAuthSubmit} className="w-full h-full">
-              <div className="absolute w-[558px] h-[42px] top-[234px] left-10 rounded-md">
+              <div className="absolute w-[558px] h-[42px] top-[234px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
                 <input
                   type="text"
                   name="emailOrPhone"
@@ -493,10 +447,9 @@ export default function Navigation(): JSX.Element {
                   className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
                   required
                 />
-                <div className="absolute w-[558px] h-[42px] top-0 left-0 rounded-md border-[5px] border-solid border-[#dca844] pointer-events-none" />
               </div>
-
-              <div className="absolute w-[558px] h-[42px] top-[301px] left-[39px] rounded-md">
+  
+              <div className="absolute w-[558px] h-[42px] top-[301px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
                 <input
                   type="password"
                   name="password"
@@ -506,15 +459,14 @@ export default function Navigation(): JSX.Element {
                   className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
                   required
                 />
-                <div className="absolute w-[558px] h-[42px] top-0 left-0 rounded-md border-[5px] border-solid border-[#dca844] pointer-events-none" />
               </div>
-
+  
               <div className="absolute w-[300px] h-[60px] top-[700px] left-[168px] rounded-md">
                 <PrimaryButton type="submit">
                     Авторизироваться
                 </PrimaryButton>
               </div>
-
+  
               <button 
                 type="button"
                 onClick={closeAuthModal}
@@ -531,7 +483,7 @@ export default function Navigation(): JSX.Element {
           </div>
         </div>
       )}
-
+  
       {showRegModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="relative w-[637px] h-[810px] bg-[#1b221b] rounded-md">
@@ -540,13 +492,13 @@ export default function Navigation(): JSX.Element {
               alt="Union"
               src="/полоски_под_заголовком.svg"
             />
-
+  
             <div className="w-[261px] top-[45px] left-[187px] [-webkit-text-stroke:1px_#dca844] text-[#dca844] text-[40px] text-center absolute [font-family:'Istok_Web-Regular',Helvetica] font-normal tracking-[0] leading-[normal]">
               Регистрация
             </div>
-
+  
             <form onSubmit={handleRegSubmit} className="w-full h-full">
-              <div className="absolute w-[558px] h-[42px] top-[234px] left-10 rounded-md">
+              <div className="absolute w-[558px] h-[42px] top-[234px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
                 <input
                   type="text"
                   name="firstName"
@@ -556,10 +508,9 @@ export default function Navigation(): JSX.Element {
                   className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
                   required
                 />
-                <div className="absolute w-[558px] h-[42px] top-0 left-0 rounded-md border-[5px] border-solid border-[#dca844] pointer-events-none" />
               </div>
-
-              <div className="absolute w-[558px] h-[42px] top-[301px] left-[39px] rounded-md">
+  
+              <div className="absolute w-[558px] h-[42px] top-[301px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
                 <input
                   type="text"
                   name="lastName"
@@ -569,10 +520,9 @@ export default function Navigation(): JSX.Element {
                   className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
                   required
                 />
-                <div className="absolute w-[558px] h-[42px] top-0 left-0 rounded-md border-[5px] border-solid border-[#dca844] pointer-events-none" />
               </div>
-
-              <div className="absolute w-[558px] h-[42px] top-[368px] left-[39px] rounded-md">
+  
+              <div className="absolute w-[558px] h-[42px] top-[368px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
                 <input
                   type="tel"
                   name="phone"
@@ -582,10 +532,9 @@ export default function Navigation(): JSX.Element {
                   className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
                   required
                 />
-                <div className="absolute w-[558px] h-[42px] top-0 left-0 rounded-md border-[5px] border-solid border-[#dca844] pointer-events-none" />
               </div>
-
-              <div className="absolute w-[558px] h-[42px] top-[435px] left-[39px] rounded-md">
+  
+              <div className="absolute w-[558px] h-[42px] top-[435px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
                 <input
                   type="email"
                   name="email"
@@ -595,10 +544,9 @@ export default function Navigation(): JSX.Element {
                   className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
                   required
                 />
-                <div className="absolute w-[558px] h-[42px] top-0 left-0 rounded-md border-[5px] border-solid border-[#dca844] pointer-events-none" />
               </div>
-
-              <div className="absolute w-[558px] h-[42px] top-[547px] left-10 rounded-md">
+  
+              <div className="absolute w-[558px] h-[42px] top-[547px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
                 <input
                   type="password"
                   name="password"
@@ -608,10 +556,9 @@ export default function Navigation(): JSX.Element {
                   className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
                   required
                 />
-                <div className="absolute w-[558px] h-[42px] top-0 left-0 rounded-md border-[5px] border-solid border-[#dca844] pointer-events-none" />
               </div>
-
-              <div className="absolute w-[558px] h-[42px] top-[614px] left-10 rounded-md">
+  
+              <div className="absolute w-[558px] h-[42px] top-[614px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
                 <input
                   type="password"
                   name="confirmPassword"
@@ -621,15 +568,14 @@ export default function Navigation(): JSX.Element {
                   className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
                   required
                 />
-                <div className="absolute w-[558px] h-[42px] top-0 left-0 rounded-md border-[5px] border-solid border-[#dca844] pointer-events-none" />
               </div>
-
+  
               <div className="absolute w-[300px] h-[60px] top-[700px] left-[168px] rounded-md">
                 <PrimaryButton type="submit">
                   Зарегистрироваться
                 </PrimaryButton>
               </div>
-
+  
               <button 
                 type="button"
                 onClick={closeRegModal}

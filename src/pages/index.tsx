@@ -7,6 +7,7 @@ import { WhyUsSection } from '@/components/WhyUsSection';
 import { HowWork } from '@/components/HowWork';
 import { Komanda } from '@/components/Komanda';
 import { Dno } from '@/components/Dno';
+import NavigationWrapper from '@/components/NavigationWrapper';
 
 const IndexPage: NextPage = () => {
   return (
@@ -14,6 +15,8 @@ const IndexPage: NextPage = () => {
       <Head>
         <title>Polyform</title>
       </Head>
+
+      <NavigationWrapper />
       
       <div className="relative">
         <Navigation/>

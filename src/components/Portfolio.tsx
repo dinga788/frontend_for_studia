@@ -1,4 +1,4 @@
-import React, { JSX, useState } from 'react';
+/*import React, { JSX, useState } from 'react';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import Button from '@/components/ui/button';
 import Card from '@/components/ui/card';
@@ -290,10 +290,10 @@ export default function Box(): JSX.Element {
       </div>
     </div>
   );
-}
+}*/
 
-
-/*import React, { JSX, useState } from 'react';
+'use client';
+import React, { JSX, useState } from 'react';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import Button from '@/components/ui/button';
 import Card from '@/components/ui/card';
@@ -301,6 +301,7 @@ import Carousel from '@/components/ui/carousel';
 import CarouselContent from '@/components/ui/carousel-content';
 import { CardContent } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 interface ImageData {
   src: string;
@@ -529,9 +530,11 @@ export default function Box(): JSX.Element {
                       <p className="text-xl text-[#dca844] font-['Istok_Web-Regular',Helvetica] leading-normal">
                         {positions.main.description}
                       </p>
-                      <AnimatedButton className="mt-[10px]">
-                        Обсудить проект
-                      </AnimatedButton>
+                      <Link href="/svasi" passHref>
+                        <AnimatedButton className="mt-[10px]">
+                          Обсудить проект
+                        </AnimatedButton>
+                      </Link>
                     </CardContent>
                   </Card>
                 </div>
@@ -609,4 +612,4 @@ export default function Box(): JSX.Element {
       </div>
     </div>
   );
-}*/
+}

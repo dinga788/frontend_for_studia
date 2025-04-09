@@ -1,11 +1,14 @@
+'use client';
 import React, { JSX } from "react";
 
 export const Dno = (): JSX.Element => {
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
   };
 
   return (

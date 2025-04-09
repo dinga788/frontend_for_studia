@@ -1,4 +1,4 @@
-import React, { JSX } from "react";
+/*import React, { JSX } from "react";
 
 export const HowWork = (): JSX.Element => {
   return (
@@ -10,14 +10,10 @@ export const HowWork = (): JSX.Element => {
               Как начать работать?
             </div>
 
-            {/* Контейнер с изображениями и вертикальной линией */}
             <div className="absolute top-[138px] left-[911px] flex flex-col items-center">
-              {/* Вертикальная линия */}
               <div className="absolute h-[780px] w-[4px] bg-[#dca844]"></div>
               
-              {/* Изображения с анимацией */}
               <div className="flex flex-col gap-[70px] relative z-10">
-                {/* Шаг 1 */}
                 <div className="relative group">
                   <div className="w-[101px] h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20">
                     <img 
@@ -36,7 +32,6 @@ export const HowWork = (): JSX.Element => {
                   </div>
                 </div>
 
-                {/* Шаг 2 - исправленный отступ */}
                 <div className="relative group">
                   <div className="w-[101px] h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20">
                     <img 
@@ -55,7 +50,6 @@ export const HowWork = (): JSX.Element => {
                   </div>
                 </div>
 
-                {/* Шаг 3 */}
                 <div className="relative group">
                   <div className="w-[101px] h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20">
                     <img 
@@ -74,7 +68,6 @@ export const HowWork = (): JSX.Element => {
                   </div>
                 </div>
 
-                {/* Шаг 4 */}
                 <div className="relative group">
                   <div className="w-[101px] h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20">
                     <img 
@@ -93,7 +86,6 @@ export const HowWork = (): JSX.Element => {
                   </div>
                 </div>
 
-                {/* Шаг 5 */}
                 <div className="relative group">
                   <div className="w-[101px] h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20">
                     <img 
@@ -118,24 +110,28 @@ export const HowWork = (): JSX.Element => {
       </div>
     </div>
   );
-};
+};*/
 
 
-/*import React, { JSX } from "react";
+'use client';
+import React, { JSX } from "react";
 
 export const HowWork = (): JSX.Element => {
   return (
     <div className="relative w-full min-h-screen bg-[#1b221b] overflow-hidden">
       <div className="relative w-full min-h-screen bg-[#1b221b] pl-4 sm:pl-6 md:pl-8 lg:pl-0">
-        <div className="w-[90%] max-w-[430px] top-[60px] left-0 xl:left-[749px] [-webkit-text-stroke:1px_#dca844] [font-family:'Istok_Web-Bold',Helvetica] font-bold text-[28px] sm:text-[32px] md:text-[36px] lg:text-[40px] absolute text-[#dca844] tracking-[0] leading-[normal]">
+        {/* Заголовок - центрируем только на xl */}
+        <div className="w-[90%] max-w-[430px] top-[60px] left-0 xl:left-1/2 xl:transform xl:-translate-x-1/2 [-webkit-text-stroke:1px_#dca844] [font-family:'Istok_Web-Bold',Helvetica] font-bold text-[28px] sm:text-[32px] md:text-[36px] lg:text-[40px] absolute text-[#dca844] tracking-[0] leading-[normal]">
           Как начать работать?
         </div>
 
-        <div className="absolute top-[180px] left-4 sm:left-8 md:left-12 lg:left-16 xl:left-[911px]">
+        {/* Основной контейнер - центрируем только на xl */}
+        <div className="absolute top-[180px] left-4 sm:left-8 md:left-12 lg:left-16 xl:left-1/2 xl:transform xl:-translate-x-1/2">
           <div className="relative flex">
             <div className="absolute left-1/2 top-[40px] h-[calc(100%-80px)] w-[4px] bg-[#dca844] transform -translate-x-1/2"></div>
             
             <div className="flex flex-col gap-[50px] sm:gap-[60px] md:gap-[70px] relative z-10 w-full">
+              {/* Шаг 1 */}
               <div className="relative group flex justify-center">
                 <div className="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] md:w-[101px] md:h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20 flex-shrink-0">
                   <img 
@@ -162,6 +158,7 @@ export const HowWork = (): JSX.Element => {
                 </div>
               </div>
 
+              {/* Шаг 2 */}
               <div className="relative group flex justify-center">
                 <div className="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] md:w-[101px] md:h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20 flex-shrink-0">
                   <img 
@@ -170,7 +167,7 @@ export const HowWork = (): JSX.Element => {
                     src="/2.svg" 
                   />
                 </div>
-                <div className="absolute right-full mr-4 sm:mr-6 top-0 w-[250px] sm:w-[300px] md:w-[350px] lg:w-[374px] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-5 xl:block hidden">
+                <div className="absolute right-full mr-4 sm:mr-6 top-0 w-[250px] sm:w-[280px] md:w-[350px] lg:w-[300px] transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-5 xl:block hidden">
                   <div className="[font-family:'Istok_Web-Bold',Helvetica] font-bold text-[18px] sm:text-[20px] md:text-[22px] lg:text-[25px] text-[#dca844]">
                     Выбор Услуги
                   </div>
@@ -188,6 +185,7 @@ export const HowWork = (): JSX.Element => {
                 </div>
               </div>
 
+              {/* Шаг 3 */}
               <div className="relative group flex justify-center">
                 <div className="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] md:w-[101px] md:h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20 flex-shrink-0">
                   <img 
@@ -214,6 +212,7 @@ export const HowWork = (): JSX.Element => {
                 </div>
               </div>
 
+              {/* Шаг 4 */}
               <div className="relative group flex justify-center">
                 <div className="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] md:w-[101px] md:h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20 flex-shrink-0">
                   <img 
@@ -240,6 +239,7 @@ export const HowWork = (): JSX.Element => {
                 </div>
               </div>
 
+              {/* Шаг 5 */}
               <div className="relative group flex justify-center">
                 <div className="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] md:w-[101px] md:h-[101px] transition-transform duration-300 hover:scale-110 focus:outline-none relative z-20 flex-shrink-0">
                   <img 
@@ -271,4 +271,4 @@ export const HowWork = (): JSX.Element => {
       </div>
     </div>
   );
-};*/
+};

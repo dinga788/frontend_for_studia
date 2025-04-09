@@ -1,4 +1,4 @@
-import React from 'react';
+/*import React from 'react';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import Button from '@/components/ui/button';
@@ -38,11 +38,13 @@ export default function Box() {
       </div>
     </main>
   );
-}
+}*/
 
-/*import React from 'react';
+'use client';
+import React from 'react';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import Link from 'next/link';
 
 export default function Box() {
   return (
@@ -71,12 +73,14 @@ export default function Box() {
               Оформить заказ
             </PrimaryButton>
             
-            <AnimatedButton className="text-[16px] sm:text-[25px]">
-              Обсудить проект
-            </AnimatedButton>
+            <Link href="/svasi" passHref>
+              <AnimatedButton className="text-[16px] sm:text-[25px]">
+                Обсудить проект
+              </AnimatedButton>
+            </Link>
           </div>
         </div>
       </div>
     </main>
   );
-}*/
+}
