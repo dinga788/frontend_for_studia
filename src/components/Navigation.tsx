@@ -52,16 +52,15 @@ export default function Navigation() {
   const checkAuthStatus = async () => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) return;
+      if (!token) {
+        setCurrentUser(null);
+        return;
+      }
   
       const response = await authAPI.getProfile();
-      setCurrentUser(response.data.user);
+      setCurrentUser(response.data);
     } catch (error) {
-      if (error instanceof Error) {
-        console.error('Auth check failed:', error.message);
-      } else {
-        console.error('Unexpected error:', error);
-      }
+      console.error('Auth check failed:', error);
       localStorage.removeItem('token');
       setCurrentUser(null);
     }
@@ -243,14 +242,11 @@ export default function Navigation() {
 
               {currentUser ? (
                 <div className="flex items-center ml-[48px]">
-                  <span className="text-[#dca844] mr-4">
-                    {currentUser.first_name} {currentUser.last_name}
-                  </span>
                   <button 
-                    onClick={handleLogout}
+                    onClick={toggleProfile}
                     className="text-[#dca844] hover:text-yellow-300 transition-colors"
                   >
-                    Выйти
+                    <User className="w-10 h-10" />
                   </button>
                 </div>
               ) : (
@@ -296,21 +292,12 @@ export default function Navigation() {
                 )}
               </div>
 
-              {currentUser ? (
-                <button 
-                  onClick={handleLogout}
-                  className="text-[#dca844] hover:text-yellow-300 transition-colors"
-                >
-                  Выйти
-                </button>
-              ) : (
-                <button 
-                  onClick={toggleProfile}
-                  className="text-[#dca844] hover:text-yellow-300 transition-colors"
-                >
-                  <User className="w-8 h-8" />
-                </button>
-              )}
+              <button 
+                onClick={toggleProfile}
+                className="text-[#dca844] hover:text-yellow-300 transition-colors"
+              >
+                <User className="w-8 h-8" />
+              </button>
             </div>
           </div>
         </nav>
@@ -364,7 +351,7 @@ export default function Navigation() {
               <div 
                 className="flex items-center mb-12 cursor-pointer"
                 onClick={() => {
-                  router.push('/orders');
+                  addNotification('Раздел "Мои заказы" в разработке', 'success');
                   setIsProfileOpen(false);
                 }}
               >
@@ -378,16 +365,18 @@ export default function Navigation() {
                 </span>
               </div>
               
-              <div className="flex items-center mb-12 cursor-pointer">
-                <img 
-                  src='/message-notif.svg'
-                  alt="Связаться"
-                  className="w-10 h-10 mr-8"
-                />
-                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
-                  Связаться
-                </span>
-              </div>
+              <Link href="/svasi" passHref>
+                <div className="flex items-center mb-12 cursor-pointer">
+                  <img 
+                    src='/message-notif.svg'
+                    alt="Связаться"
+                    className="w-10 h-10 mr-8"
+                  />
+                  <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                    Связаться
+                  </span>
+                </div>
+              </Link>
               
               <div className="flex items-center cursor-pointer" onClick={handleLogout}>
                 <img 
@@ -424,20 +413,18 @@ export default function Navigation() {
                 </span>
               </div>
               
-              <div className="flex items-center">
-                <Link href="/svasi" passHref>
-                  <button className="flex items-center cursor-pointer">
-                    <img 
-                      src='/message-notif.svg' 
-                      alt="Связаться" 
-                      className="w-10 h-10 mr-8" 
-                    />
-                    <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
-                      Связаться
-                    </span>
-                  </button>
-                </Link>
-              </div>
+              <Link href="/svasi" passHref>
+                <div className="flex items-center cursor-pointer">
+                  <img 
+                    src='/message-notif.svg' 
+                    alt="Связаться" 
+                    className="w-10 h-10 mr-8" 
+                  />
+                  <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                    Связаться
+                  </span>
+                </div>
+              </Link>
             </>
           )}
         </div>
