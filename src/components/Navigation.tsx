@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { authAPI } from '@/services/api.service';
 import Link from 'next/link';
-import router from "next/router";
+import { useRouter } from 'next/navigation';
 
 type FormData = {
   firstName: string;
@@ -31,6 +31,7 @@ type Notification = {
 };
 
 export default function Navigation() {
+  const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -48,8 +49,27 @@ export default function Navigation() {
     confirmPassword: ''
   });
 
+  const checkAuthStatus = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+  
+      const response = await authAPI.getProfile();
+      setCurrentUser(response.data.user);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('Auth check failed:', error.message);
+      } else {
+        console.error('Unexpected error:', error);
+      }
+      localStorage.removeItem('token');
+      setCurrentUser(null);
+    }
+  };
+
   useEffect(() => {
     setIsMounted(true);
+    checkAuthStatus();
   }, []);
 
   if (!isMounted) {
@@ -73,7 +93,9 @@ export default function Navigation() {
   ];
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
     closeAllModals();
   };
 
@@ -153,12 +175,9 @@ export default function Navigation() {
         confirmPassword: formData.confirmPassword,
       });
       
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('token', response.data.token);
-      }
+      localStorage.setItem('token', response.data.token);
       setCurrentUser(response.data.user);
       addNotification('Вы успешно зарегистрировались!', 'success');
-      
       closeRegModal();
       setIsProfileOpen(false);
     } catch (error: any) {
@@ -178,6 +197,7 @@ export default function Navigation() {
       setCurrentUser(response.data.user);
       addNotification('Вы успешно авторизовались!', 'success');
       closeAuthModal();
+      setIsProfileOpen(false);
     } catch (error) {
       addNotification('Ошибка авторизации', 'error');
     }
@@ -205,7 +225,7 @@ export default function Navigation() {
                 className="ml-2 sm:ml-[23px] w-32 sm:w-[204px] h-5 sm:h-[29px]" 
               />
             </button>
-  
+
             <div className="hidden lg:flex items-center">
               <ul className="flex items-center space-x-[50px]">
                 {navItems.map((item) => (
@@ -220,7 +240,7 @@ export default function Navigation() {
                   </li>
                 ))}
               </ul>
-  
+
               {currentUser ? (
                 <div className="flex items-center ml-[48px]">
                   <span className="text-[#dca844] mr-4">
@@ -242,7 +262,7 @@ export default function Navigation() {
                 </button>
               )}
             </div>
-  
+
             <div className="flex lg:hidden items-center gap-6">
               <div className="relative">
                 <button 
@@ -256,7 +276,7 @@ export default function Navigation() {
                     <ChevronDown className="w-8 h-8" />
                   )}
                 </button>
-  
+
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-[#1b221b] border border-[#dca844] rounded-md shadow-lg z-50">
                     <ul className="py-1">
@@ -275,7 +295,7 @@ export default function Navigation() {
                   </div>
                 )}
               </div>
-  
+
               {currentUser ? (
                 <button 
                   onClick={handleLogout}
@@ -295,7 +315,7 @@ export default function Navigation() {
           </div>
         </nav>
       </header>
-  
+
       {/* Уведомления */}
       <div className="fixed top-4 right-4 z-[60] space-y-2">
         {notifications.map(notification => (
@@ -317,7 +337,7 @@ export default function Navigation() {
           </div>
         ))}
       </div>
-  
+
       {(isProfileOpen || showAuthModal || showRegModal) && (
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
@@ -328,7 +348,7 @@ export default function Navigation() {
           }}
         />
       )}
-  
+
       <div className={`fixed top-0 right-0 h-full w-[477px] bg-[#131613] z-50 transition-transform duration-300 ${isProfileOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="p-6">
           <button 
@@ -422,7 +442,7 @@ export default function Navigation() {
           )}
         </div>
       </div>
-  
+
       {showAuthModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="relative w-[637px] h-[810px] bg-[#1b221b] rounded-md">
@@ -431,11 +451,11 @@ export default function Navigation() {
               alt="Union"
               src="/полоски_под_заголовком.svg"
             />
-  
+
             <div className="w-[261px] top-[45px] left-[187px] [-webkit-text-stroke:1px_#dca844] text-[#dca844] text-[40px] text-center absolute [font-family:'Istok_Web-Regular',Helvetica] font-normal tracking-[0] leading-[normal]">
               Авторизация
             </div>
-  
+
             <form onSubmit={handleAuthSubmit} className="w-full h-full">
               <div className="absolute w-[558px] h-[42px] top-[234px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
                 <input
@@ -448,7 +468,7 @@ export default function Navigation() {
                   required
                 />
               </div>
-  
+
               <div className="absolute w-[558px] h-[42px] top-[301px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
                 <input
                   type="password"
@@ -460,13 +480,13 @@ export default function Navigation() {
                   required
                 />
               </div>
-  
+
               <div className="absolute w-[300px] h-[60px] top-[700px] left-[168px] rounded-md">
                 <PrimaryButton type="submit">
                     Авторизироваться
                 </PrimaryButton>
               </div>
-  
+
               <button 
                 type="button"
                 onClick={closeAuthModal}
@@ -483,7 +503,7 @@ export default function Navigation() {
           </div>
         </div>
       )}
-  
+
       {showRegModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="relative w-[637px] h-[810px] bg-[#1b221b] rounded-md">
@@ -492,11 +512,11 @@ export default function Navigation() {
               alt="Union"
               src="/полоски_под_заголовком.svg"
             />
-  
+
             <div className="w-[261px] top-[45px] left-[187px] [-webkit-text-stroke:1px_#dca844] text-[#dca844] text-[40px] text-center absolute [font-family:'Istok_Web-Regular',Helvetica] font-normal tracking-[0] leading-[normal]">
               Регистрация
             </div>
-  
+
             <form onSubmit={handleRegSubmit} className="w-full h-full">
               <div className="absolute w-[558px] h-[42px] top-[234px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
                 <input
@@ -509,7 +529,7 @@ export default function Navigation() {
                   required
                 />
               </div>
-  
+
               <div className="absolute w-[558px] h-[42px] top-[301px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
                 <input
                   type="text"
@@ -521,7 +541,7 @@ export default function Navigation() {
                   required
                 />
               </div>
-  
+
               <div className="absolute w-[558px] h-[42px] top-[368px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
                 <input
                   type="tel"
@@ -533,7 +553,7 @@ export default function Navigation() {
                   required
                 />
               </div>
-  
+
               <div className="absolute w-[558px] h-[42px] top-[435px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
                 <input
                   type="email"
@@ -545,7 +565,7 @@ export default function Navigation() {
                   required
                 />
               </div>
-  
+
               <div className="absolute w-[558px] h-[42px] top-[547px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
                 <input
                   type="password"
@@ -557,7 +577,7 @@ export default function Navigation() {
                   required
                 />
               </div>
-  
+
               <div className="absolute w-[558px] h-[42px] top-[614px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
                 <input
                   type="password"
@@ -569,13 +589,13 @@ export default function Navigation() {
                   required
                 />
               </div>
-  
+
               <div className="absolute w-[300px] h-[60px] top-[700px] left-[168px] rounded-md">
                 <PrimaryButton type="submit">
                   Зарегистрироваться
                 </PrimaryButton>
               </div>
-  
+
               <button 
                 type="button"
                 onClick={closeRegModal}
