@@ -69,10 +69,11 @@ export default function Box() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-10 mt-[50px] sm:mt-[150px]">
-            <PrimaryButton className="text-[16px] sm:text-[25px]">
-              Оформить заказ
-            </PrimaryButton>
-            
+            <Link href="/katalog" passHref>
+              <PrimaryButton className="text-[16px] sm:text-[25px]">
+                Оформить заказ
+              </PrimaryButton>
+            </Link>
             <Link href="/svasi" passHref>
               <AnimatedButton className="text-[16px] sm:text-[25px]">
                 Обсудить проект
