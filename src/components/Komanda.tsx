@@ -244,7 +244,7 @@ export const Komanda = (): JSX.Element | null => {
   ];
 
   return (
-    <div className="relative w-full min-h-screen bg-[#1b221b] flex items-center justify-center py-[5vh]">
+    <div className="relative w-full min-h-screen bg-[#1b221b] flex items-center justify-center py-[5vh]" id="team">
       <div className="w-full max-w-[1920px] mx-auto px-[5%]">
         <h2 className="mb-[4vh] [-webkit-text-stroke:1px_#dca844] [font-family:'Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[3vh] md:text-[3.5vh] lg:text-[4vh] xl:text-[4.5vh] 2xl:text-[48px] whitespace-nowrap text-center">
           Наша команда

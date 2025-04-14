@@ -1,10 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { authAPI, ordersAPI } from '@/services/api.service';
 import { useRouter } from 'next/router';
+import { AuthModal } from '@/components/AuthModal';
+import { RegisterModal } from '@/components/RegisterModal';
+import { NotificationsContainer } from '@/components/NotificationsContainer';
+import { User, X } from "lucide-react";
+
+type FormData = {
+  emailOrPhone: string;
+  password: string;
+};
+
+type UserData = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number: string;
+};
 
 const KatalogPage = () => {
   const [currentService, setCurrentService] = useState(0);
   const [expandedServices, setExpandedServices] = useState<Record<number, boolean>>({});
+  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showRegModal, setShowRegModal] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [notifications, setNotifications] = useState<{id: number, message: string, type: 'success' | 'error'}[]>([]);
   const router = useRouter();
 
   const services = [
@@ -31,6 +54,27 @@ const KatalogPage = () => {
     }
   ];
 
+  const checkAuthStatus = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setCurrentUser(null);
+        return;
+      }
+  
+      const response = await authAPI.getProfile();
+      setCurrentUser(response.data);
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      localStorage.removeItem('token');
+      setCurrentUser(null);
+    }
+  };
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
   const nextService = () => {
     setCurrentService((prev) => (prev + 1) % services.length);
   };
@@ -39,16 +83,68 @@ const KatalogPage = () => {
     setCurrentService((prev) => (prev - 1 + services.length) % services.length);
   };
 
-  const handleOrder = () => {
-    window.location.href = "https://rutube.ru/video/f3b615db135287a64584737e664e1e4b/?ysclid=m9fi342tvi652068925";
+  const handleOrder = async () => {
+    if (currentUser) {
+      try {
+        // Создаем заказ
+        const orderData = {
+          userId: currentUser.id,
+          serviceId: currentService + 1, // предполагая, что id сервисов начинаются с 1
+          workerId: 1, // временно фиксированный workerId
+          deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // +14 дней
+          status: "В работе"
+        };
+  
+        // Отправляем запрос на создание заказа
+        await ordersAPI.createOrder(orderData);
+        
+        addNotification('Заказ успешно оформлен!', 'success');
+        
+        // Перенаправляем на страницу заказов
+        router.push('/orders');
+      } catch (error) {
+        console.error('Order creation failed:', error);
+        addNotification('Ошибка при оформлении заказа', 'error');
+      }
+    } else {
+      setShowAuthModal(true);
+    }
   };
 
   const handleImageHover = () => {
-    // Устанавливаем флаг раскрытия только для текущей услуги
     setExpandedServices(prev => ({
       ...prev,
       [currentService]: true
     }));
+  };
+
+  const addNotification = (message: string, type: 'success' | 'error') => {
+    const id = Date.now();
+    setNotifications(prev => [...prev, { id, message, type }]);
+    setTimeout(() => removeNotification(id), 5000);
+  };
+
+  const removeNotification = (id: number) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
+  const handleAuthSuccess = () => {
+    checkAuthStatus();
+    addNotification('Вы успешно авторизовались!', 'success');
+    setShowAuthModal(false);
+  };
+
+  const handleRegSuccess = () => {
+    checkAuthStatus();
+    addNotification('Вы успешно зарегистрировались!', 'success');
+    setShowRegModal(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setCurrentUser(null);
+    setIsProfileOpen(false);
+    addNotification('Вы вышли из системы', 'success');
   };
 
   const service = services[currentService];
@@ -145,7 +241,151 @@ const KatalogPage = () => {
             </div>
           </div>
         </div>
+
+        {/* Кнопка профиля */}
+        <button 
+          onClick={() => setIsProfileOpen(true)}
+          className="fixed top-5 right-5 text-[#dca844] hover:text-yellow-300 transition-colors z-50"
+        >
+          <User className="w-10 h-10" />
+        </button>
       </div>
+
+      {/* Профиль пользователя */}
+      <div className={`fixed top-0 right-0 h-full w-[477px] bg-[#131613] z-50 transition-transform duration-300 ${isProfileOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="p-6">
+          <button 
+            onClick={() => setIsProfileOpen(false)}
+            className="text-[#dca844] hover:text-yellow-300 mb-8"
+            aria-label="Закрыть"
+          >
+            <X className="w-8 h-8" />
+          </button>
+          
+          {currentUser ? (
+            <>
+              <div 
+                className="flex items-center mb-12 cursor-pointer"
+                onClick={() => {
+                  addNotification('Раздел "Мои заказы" в разработке', 'success');
+                  setIsProfileOpen(false);
+                }}
+              >
+                <img 
+                  src='/bag-2.svg'
+                  alt="Мои заказы"
+                  className="w-10 h-10 mr-8"
+                />
+                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                  Мои заказы
+                </span>
+              </div>
+              
+              <div className="flex items-center mb-12 cursor-pointer">
+                <img 
+                  src='/message-notif.svg'
+                  alt="Связаться"
+                  className="w-10 h-10 mr-8"
+                />
+                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                  Связаться
+                </span>
+              </div>
+              
+              <div className="flex items-center cursor-pointer" onClick={handleLogout}>
+                <img 
+                  src='/logout.svg'
+                  alt="Выйти"
+                  className="w-10 h-10 mr-8"
+                />
+                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                  Выйти
+                </span>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center mb-12 cursor-pointer" onClick={() => { setIsProfileOpen(false); setShowAuthModal(true); }}>
+                <img 
+                  src='/user-tick.svg' 
+                  alt="авторизация" 
+                  className="w-10 h-10 mr-8" 
+                />
+                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                  авторизироватся
+                </span>
+              </div>
+              
+              <div className="flex items-center mb-12 cursor-pointer" onClick={() => { setIsProfileOpen(false); setShowRegModal(true); }}>
+                <img 
+                  src='/user-add.svg'
+                  alt="Регистрация" 
+                  className="w-10 h-10 mr-8" 
+                />
+                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                  Регистрация
+                </span>
+              </div>
+              
+              <div className="flex items-center cursor-pointer">
+                <img 
+                  src='/message-notif.svg' 
+                  alt="Связаться" 
+                  className="w-10 h-10 mr-8" 
+                />
+                <span className="font-['Istok_Web-Bold',Helvetica] font-bold text-[#dca844] text-[25px]">
+                  Связаться
+                </span>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Модальные окна авторизации и регистрации */}
+      {showAuthModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <AuthModal 
+            onClose={() => setShowAuthModal(false)}
+            onSuccess={handleAuthSuccess}
+            onSwitchToRegister={() => {
+              setShowAuthModal(false);
+              setShowRegModal(true);
+            }}
+          />
+        </div>
+      )}
+
+      {showRegModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <RegisterModal 
+            onClose={() => setShowRegModal(false)}
+            onSuccess={handleRegSuccess}
+            onSwitchToLogin={() => {
+              setShowRegModal(false);
+              setShowAuthModal(true);
+            }}
+          />
+        </div>
+      )}
+
+      {/* Уведомления */}
+      <NotificationsContainer 
+        notifications={notifications} 
+        onRemove={removeNotification} 
+      />
+
+      {/* Затемнение фона */}
+      {(isProfileOpen || showAuthModal || showRegModal) && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+          onClick={() => {
+            setIsProfileOpen(false);
+            setShowAuthModal(false);
+            setShowRegModal(false);
+          }}
+        />
+      )}
     </div>
   );
 };

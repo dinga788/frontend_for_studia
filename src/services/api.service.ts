@@ -33,4 +33,16 @@ export const authAPI = {
   getProfile: () => api.get('/users/me'),
 };
 
+export const ordersAPI = {
+  createOrder: (data: {
+    userId: number;
+    serviceId: number;
+    workerId: number;
+    deadline: Date;
+    status: string;
+  }) => api.post('/orders', data),
+
+  getUserOrders: (userId: number) => api.get(`/orders/user/${userId}`),
+};
+
 export default api;

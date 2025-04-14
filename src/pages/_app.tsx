@@ -1,3 +1,5 @@
+import { NotificationsContainer } from "@/components/NotificationsContainer";
+import { NotificationProvider } from "@/context/NotificationContext";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { useEffect, useState } from "react";
@@ -11,5 +13,12 @@ export default function App({ Component, pageProps }: AppProps) {
 
   if (!mounted) return null;
 
-  return <Component {...pageProps} />;
+  return (
+    <NotificationProvider>
+      <Component {...pageProps} />
+      <NotificationsContainer notifications={[]} onRemove={function (id: number): void {
+        throw new Error("Function not implemented.");
+      } } />
+    </NotificationProvider>
+  );
 }

@@ -1,20 +1,12 @@
 'use client';
 import { User, ChevronDown, ChevronUp, X } from "lucide-react";
 import React, { useState, useEffect } from "react";
-import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { authAPI } from '@/services/api.service';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-
-type FormData = {
-  firstName: string;
-  lastName: string;
-  phone: string;
-  email: string;
-  emailOrPhone: string;
-  password: string;
-  confirmPassword: string;
-};
+import { AuthModal } from './AuthModal';
+import { RegisterModal } from './RegisterModal';
+import { NotificationsContainer } from './NotificationsContainer';
+import { authAPI } from '@/services/api.service';
 
 type UserData = {
   id: number;
@@ -22,12 +14,6 @@ type UserData = {
   last_name: string;
   email: string;
   phone_number: string;
-};
-
-type Notification = {
-  id: number;
-  message: string;
-  type: 'success' | 'error';
 };
 
 export default function Navigation() {
@@ -38,16 +24,7 @@ export default function Navigation() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showRegModal, setShowRegModal] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [formData, setFormData] = useState<FormData>({
-    firstName: '',
-    lastName: '',
-    phone: '',
-    email: '',
-    emailOrPhone: '',
-    password: '',
-    confirmPassword: ''
-  });
+  const [notifications, setNotifications] = useState<{id: number, message: string, type: 'success' | 'error'}[]>([]);
 
   const checkAuthStatus = async () => {
     try {
@@ -119,14 +96,6 @@ export default function Navigation() {
     setShowRegModal(false);
   };
 
-  const closeAuthModal = () => {
-    setShowAuthModal(false);
-  };
-  
-  const closeRegModal = () => {
-    setShowRegModal(false);
-  };
-  
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token');
@@ -136,70 +105,14 @@ export default function Navigation() {
     addNotification('Вы вышли из системы', 'success');
   };
   
-  const handleAuthClick = () => {
-    setShowAuthModal(true);
-    setShowRegModal(false);
-    setIsProfileOpen(false);
-  };
-  
-  const handleRegClick = () => {
-    setShowRegModal(true);
-    setShowAuthModal(false);
-    setIsProfileOpen(false);
-  };
-  
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-  
-  const handleRegSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (formData.password !== formData.confirmPassword) {
-      addNotification('Пароли не совпадают', 'error');
-      return;
-    }
-  
-    try {
-      const response = await authAPI.register({
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        email: formData.email,
-        phone_number: formData.phone,
-        password: formData.password,
-        confirmPassword: formData.confirmPassword,
-      });
-      
-      localStorage.setItem('token', response.data.token);
-      setCurrentUser(response.data.user);
-      addNotification('Вы успешно зарегистрировались!', 'success');
-      closeRegModal();
-      setIsProfileOpen(false);
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Ошибка регистрации';
-      addNotification(errorMessage, 'error');
-    }
+  const handleAuthSuccess = () => {
+    checkAuthStatus();
+    addNotification('Вы успешно авторизовались!', 'success');
   };
 
-  const handleAuthSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const isEmail = formData.emailOrPhone.includes('@');
-      const login = isEmail ? formData.emailOrPhone : formData.emailOrPhone.replace(/\D/g, '');
-      const response = await authAPI.login(login, formData.password);
-      
-      localStorage.setItem('token', response.data.token);
-      setCurrentUser(response.data.user);
-      addNotification('Вы успешно авторизовались!', 'success');
-      closeAuthModal();
-      setIsProfileOpen(false);
-    } catch (error) {
-      addNotification('Ошибка авторизации', 'error');
-    }
+  const handleRegSuccess = () => {
+    checkAuthStatus();
+    addNotification('Вы успешно зарегистрировались!', 'success');
   };
 
   return (
@@ -240,23 +153,12 @@ export default function Navigation() {
                 ))}
               </ul>
 
-              {currentUser ? (
-                <div className="flex items-center ml-[48px]">
-                  <button 
-                    onClick={toggleProfile}
-                    className="text-[#dca844] hover:text-yellow-300 transition-colors"
-                  >
-                    <User className="w-10 h-10" />
-                  </button>
-                </div>
-              ) : (
-                <button 
-                  onClick={toggleProfile}
-                  className="ml-[48px] text-[#dca844] hover:text-yellow-300 transition-colors"
-                >
-                  <User className="w-10 h-10" />
-                </button>
-              )}
+              <button 
+                onClick={toggleProfile}
+                className="ml-[48px] text-[#dca844] hover:text-yellow-300 transition-colors"
+              >
+                <User className="w-10 h-10" />
+              </button>
             </div>
 
             <div className="flex lg:hidden items-center gap-6">
@@ -303,36 +205,15 @@ export default function Navigation() {
         </nav>
       </header>
 
-      {/* Уведомления */}
-      <div className="fixed top-4 right-4 z-[60] space-y-2">
-        {notifications.map(notification => (
-          <div 
-            key={notification.id}
-            className={`px-6 py-4 rounded-md shadow-lg flex items-center justify-between ${
-              notification.type === 'success' 
-                ? 'bg-green-500 text-white' 
-                : 'bg-red-500 text-white'
-            }`}
-          >
-            <span>{notification.message}</span>
-            <button 
-              onClick={() => removeNotification(notification.id)}
-              className="ml-4 text-white hover:text-gray-200"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        ))}
-      </div>
+      <NotificationsContainer 
+        notifications={notifications} 
+        onRemove={removeNotification} 
+      />
 
       {(isProfileOpen || showAuthModal || showRegModal) && (
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-          onClick={() => {
-            setIsProfileOpen(false);
-            setShowAuthModal(false);
-            setShowRegModal(false);
-          }}
+          onClick={closeAllModals}
         />
       )}
 
@@ -391,7 +272,7 @@ export default function Navigation() {
             </>
           ) : (
             <>
-              <div className="flex items-center mb-12 cursor-pointer" onClick={handleAuthClick}>
+              <div className="flex items-center mb-12 cursor-pointer" onClick={() => setShowAuthModal(true)}>
                 <img 
                   src='/user-tick.svg' 
                   alt="авторизация" 
@@ -402,7 +283,7 @@ export default function Navigation() {
                 </span>
               </div>
               
-              <div className="flex items-center mb-12 cursor-pointer" onClick={handleRegClick}>
+              <div className="flex items-center mb-12 cursor-pointer" onClick={() => setShowRegModal(true)}>
                 <img 
                   src='/user-add.svg'
                   alt="Регистрация" 
@@ -432,171 +313,27 @@ export default function Navigation() {
 
       {showAuthModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="relative w-[637px] h-[810px] bg-[#1b221b] rounded-md">
-            <img
-              className="absolute w-[327px] h-[51px] top-[100px] left-[155px]"
-              alt="Union"
-              src="/полоски_под_заголовком.svg"
-            />
-
-            <div className="w-[261px] top-[45px] left-[187px] [-webkit-text-stroke:1px_#dca844] text-[#dca844] text-[40px] text-center absolute [font-family:'Istok_Web-Regular',Helvetica] font-normal tracking-[0] leading-[normal]">
-              Авторизация
-            </div>
-
-            <form onSubmit={handleAuthSubmit} className="w-full h-full">
-              <div className="absolute w-[558px] h-[42px] top-[234px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
-                <input
-                  type="text"
-                  name="emailOrPhone"
-                  value={formData.emailOrPhone}
-                  onChange={handleInputChange}
-                  placeholder="Телефон или E-mail"
-                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
-                  required
-                />
-              </div>
-
-              <div className="absolute w-[558px] h-[42px] top-[301px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="Пароль"
-                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
-                  required
-                />
-              </div>
-
-              <div className="absolute w-[300px] h-[60px] top-[700px] left-[168px] rounded-md">
-                <PrimaryButton type="submit">
-                    Авторизироваться
-                </PrimaryButton>
-              </div>
-
-              <button 
-                type="button"
-                onClick={closeAuthModal}
-                className="absolute w-10 h-10 top-5 left-5 text-[#dca844] hover:text-yellow-300"
-                aria-label="Закрыть"
-              >
-                <img
-                  src="/send.svg"
-                  alt="Закрыть"
-                  className="w-full h-full"
-                />
-              </button>
-            </form>
-          </div>
+          <AuthModal 
+            onClose={() => setShowAuthModal(false)}
+            onSuccess={handleAuthSuccess}
+            onSwitchToRegister={() => {
+              setShowAuthModal(false);
+              setShowRegModal(true);
+            }}
+          />
         </div>
       )}
 
       {showRegModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="relative w-[637px] h-[810px] bg-[#1b221b] rounded-md">
-            <img
-              className="absolute w-[327px] h-[51px] top-[100px] left-[155px]"
-              alt="Union"
-              src="/полоски_под_заголовком.svg"
-            />
-
-            <div className="w-[261px] top-[45px] left-[187px] [-webkit-text-stroke:1px_#dca844] text-[#dca844] text-[40px] text-center absolute [font-family:'Istok_Web-Regular',Helvetica] font-normal tracking-[0] leading-[normal]">
-              Регистрация
-            </div>
-
-            <form onSubmit={handleRegSubmit} className="w-full h-full">
-              <div className="absolute w-[558px] h-[42px] top-[234px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  placeholder="Ваше имя"
-                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
-                  required
-                />
-              </div>
-
-              <div className="absolute w-[558px] h-[42px] top-[301px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  placeholder="Ваша фамилия"
-                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
-                  required
-                />
-              </div>
-
-              <div className="absolute w-[558px] h-[42px] top-[368px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  placeholder="Телефон"
-                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
-                  required
-                />
-              </div>
-
-              <div className="absolute w-[558px] h-[42px] top-[435px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="E-mail"
-                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
-                  required
-                />
-              </div>
-
-              <div className="absolute w-[558px] h-[42px] top-[547px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="Придумайте пароль"
-                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
-                  required
-                />
-              </div>
-
-              <div className="absolute w-[558px] h-[42px] top-[614px] left-1/2 transform -translate-x-1/2 rounded-md border-[5px] border-solid border-[#dca844]">
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  placeholder="Повторите пароль"
-                  className="w-full h-full bg-transparent px-4 font-['Istok_Web-Regular',Helvetica] font-normal text-[#b58a36] text-xl focus:outline-none placeholder-[#b58a36]"
-                  required
-                />
-              </div>
-
-              <div className="absolute w-[300px] h-[60px] top-[700px] left-[168px] rounded-md">
-                <PrimaryButton type="submit">
-                  Зарегистрироваться
-                </PrimaryButton>
-              </div>
-
-              <button 
-                type="button"
-                onClick={closeRegModal}
-                className="absolute w-10 h-10 top-5 left-5 text-[#dca844] hover:text-yellow-300"
-                aria-label="Закрыть"
-              >
-                <img
-                  src="/send.svg"
-                  alt="Закрыть"
-                  className="w-full h-full"
-                />
-              </button>
-            </form>
-          </div>
+          <RegisterModal 
+            onClose={() => setShowRegModal(false)}
+            onSuccess={handleRegSuccess}
+            onSwitchToLogin={() => {
+              setShowRegModal(false);
+              setShowAuthModal(true);
+            }}
+          />
         </div>
       )}
     </>
