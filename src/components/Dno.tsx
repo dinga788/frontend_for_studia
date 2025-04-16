@@ -14,7 +14,7 @@ export const Dno = (): JSX.Element => {
   return (
     <div className="w-full min-h-[259px] bg-[#1b221b] py-8 sm:py-0">
       <div className="relative w-full h-full max-w-[1920px] mx-auto">
-        {/* Декоративная линия */}
+        {/* Дэпаем линия */}
         <div className="absolute w-full flex justify-center top-[60px] sm:top-[77px] left-0">
           <img
             className="w-[90%] md:w-[80%] h-1.5"
@@ -57,7 +57,6 @@ export const Dno = (): JSX.Element => {
             </div>
           </div>
 
-          {/* Иконки соцсетей */}
           <div className="flex gap-6 sm:gap-8 md:gap-[50px]">
             <a href="mailto:iliasadowsky2005@gmail.com" 
               className="hover:opacity-80 transition-opacity"

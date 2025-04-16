@@ -15,7 +15,6 @@ const AuthModal = ({ show, onClose, onSuccess }: {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Конфигурация axios
   const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
     headers: {
@@ -29,7 +28,6 @@ const AuthModal = ({ show, onClose, onSuccess }: {
       ...prev,
       [name]: value
     }));
-    // Сбрасываем ошибки при изменении данных
     if (error) setError('');
   };
 
@@ -51,7 +49,6 @@ const AuthModal = ({ show, onClose, onSuccess }: {
       // Сохраняем токен
       localStorage.setItem('token', response.data.token);
       
-      // Получаем данные пользователя
       const profileResponse = await api.get('/auth/profile', {
         headers: {
           Authorization: `Bearer ${response.data.token}`
@@ -88,15 +85,12 @@ const AuthModal = ({ show, onClose, onSuccess }: {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
-      {/* Затемнение фона */}
       <div 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
         onClick={onClose}
       />
       
-      {/* Модальное окно */}
       <div className="relative w-full max-w-md bg-[#1b221b] rounded-lg shadow-xl z-50 overflow-hidden">
-        {/* Заголовок */}
         <div className="p-6 text-center relative">
           <h2 className="text-2xl font-bold text-[#dca844] mb-2">
             Авторизация
@@ -109,7 +103,6 @@ const AuthModal = ({ show, onClose, onSuccess }: {
             />
           </div>
           
-          {/* Кнопка закрытия */}
           <button 
             onClick={onClose}
             className="absolute top-4 right-4 text-[#dca844] hover:text-yellow-300 transition-colors"
@@ -121,9 +114,7 @@ const AuthModal = ({ show, onClose, onSuccess }: {
           </button>
         </div>
 
-        {/* Тело модального окна */}
         <div className="px-8 pb-8">
-          {/* Сообщения об ошибках/успехе */}
           {error && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
               {error}
@@ -136,7 +127,6 @@ const AuthModal = ({ show, onClose, onSuccess }: {
             </div>
           )}
 
-          {/* Форма */}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label htmlFor="emailOrPhone" className="block text-[#dca844] mb-2">
@@ -191,13 +181,11 @@ const AuthModal = ({ show, onClose, onSuccess }: {
             </div>
           </form>
 
-          {/* Дополнительные ссылки */}
           <div className="mt-4 text-center">
             <button 
               type="button" 
               className="text-[#dca844] hover:underline"
               onClick={() => {
-                // Здесь можно добавить переход на страницу восстановления пароля
                 setError('Функция восстановления пароля временно недоступна');
               }}
             >

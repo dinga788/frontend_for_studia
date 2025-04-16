@@ -4,12 +4,12 @@ import emailjs from 'emailjs-com';
 const SvasiPage = () => {
   const [isSent, setIsSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null); // Добавляем состояние для ошибки
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null); // Сбрасываем ошибку перед отправкой
+    setError(null);
 
     try {
       await emailjs.sendForm(
@@ -23,7 +23,7 @@ const SvasiPage = () => {
       (e.target as HTMLFormElement).reset();
     } catch (err) {
       console.error('Ошибка отправки:', err);
-      setError('Произошла ошибка при отправке формы. Пожалуйста, попробуйте позже.'); // Устанавливаем ошибку
+      setError('Произошла ошибка при отправке формы. Пожалуйста, попробуйте позже.');
     } finally {
       setIsLoading(false);
     }

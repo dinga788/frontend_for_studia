@@ -38,11 +38,15 @@ export const ordersAPI = {
     userId: number;
     serviceId: number;
     workerId: number;
-    deadline: Date;
+    deadline: string;
+    appointmentDate: string;
     status: string;
+    paymentStatus?: string;
+    total_price: number;
   }) => api.post('/orders', data),
 
   getUserOrders: (userId: number) => api.get(`/orders/user/${userId}`),
+  getWorker: (id: number) => api.get(`/workers/${id}`),
 };
 
 export default api;

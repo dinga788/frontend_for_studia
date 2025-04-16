@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useRouter } from 'next/router';
-import { authAPI } from '@/services/api.service';
+import { authAPI, ordersAPI } from '@/services/api.service';
 import { X } from "lucide-react";
 import { NotificationContext } from '@/context/NotificationContext';
 
@@ -17,7 +17,7 @@ interface Order {
   paymentStatus: string;
 }
 
-const OrdersPage = () => {
+const MyOrdersPage = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,7 +25,7 @@ const OrdersPage = () => {
   const { addNotification } = useContext(NotificationContext);
 
   useEffect(() => {
-    const checkAuthAndFetchOrders = async () => {
+    const fetchUserOrders = async () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -36,36 +36,10 @@ const OrdersPage = () => {
         const userResponse = await authAPI.getProfile();
         setCurrentUser(userResponse.data);
         
-        // Здесь должен быть запрос к вашему API для получения заказов пользователя
-        // Временно используем моковые данные
-        const mockOrders: Order[] = [
-          {
-            id: 1,
-            service: {
-              title: "Визуализация композиции",
-              price: 10000,
-              image: "/rectangle_105.png"
-            },
-            orderDate: "02.03.2025",
-            deadline: "20.03.2025",
-            status: "В работе",
-            paymentStatus: "Оплачен"
-          },
-          {
-            id: 2,
-            service: {
-              title: "Маркетинговое моделирование",
-              price: 5000,
-              image: "/подушка.png"
-            },
-            orderDate: "05.03.2025",
-            deadline: "15.03.2025",
-            status: "Завершен",
-            paymentStatus: "Оплачен"
-          },
-        ];
+        // Запрос к API для получения заказов
+        const ordersResponse = await ordersAPI.getUserOrders(userResponse.data.id);
+        setOrders(ordersResponse.data);
         
-        setOrders(mockOrders);
       } catch (error) {
         console.error('Failed to fetch orders:', error);
         addNotification('Ошибка при загрузке заказов', 'error');
@@ -75,7 +49,7 @@ const OrdersPage = () => {
       }
     };
 
-    checkAuthAndFetchOrders();
+    fetchUserOrders();
   }, [router, addNotification]);
 
   if (isLoading) {
@@ -155,4 +129,4 @@ const OrdersPage = () => {
   );
 };
 
-export default OrdersPage;
+export default MyOrdersPage;

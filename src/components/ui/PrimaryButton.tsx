@@ -21,7 +21,7 @@ export const PrimaryButton = ({
                  hover:bg-[#95b235] hover:shadow-[0_0_15px_#95b235]
                  ${className}`}
       style={{ width, height }}
-      {...props} // Передаем все стандартные props кнопки
+      {...props}
     >
       <span className={`[font-family:'Istok_Web-Regular',Helvetica] font-normal text-[#0b0e0b] text-[25px]
                        transition-colors duration-500 ${className}`}>
