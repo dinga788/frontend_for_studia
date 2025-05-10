@@ -1,4 +1,7 @@
 import React from 'react';
+import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import Button from '@/components/ui/button';
 
 export default function Box() {
   return (
@@ -26,17 +29,13 @@ export default function Box() {
 
           {/* Кнопки */}
           <div className="flex gap-10 mt-[150px]">
-            <button className="w-[300px] h-[60px] bg-[#a6c63c] hover:bg-[#95b235] rounded-md">
-              <span className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-[#0b0e0b] text-[25px]">
-                Оформить заказ
-              </span>
-            </button>
-
-            <button className="w-[300px] h-[60px] rounded-md border-[5px] border-[#a6c63c] hover:bg-[#a6c63c]/10">
-              <span className="[font-family:'Istok_Web-Regular',Helvetica] font-normal text-[#a6c63c] text-[25px]">
-                Обсудить проект
-              </span>
-            </button>
+          <PrimaryButton>
+            Оформить заказ
+          </PrimaryButton>
+          
+          <AnimatedButton>
+            Обсудить проект
+          </AnimatedButton>
           </div>
         </div>
       </div>
